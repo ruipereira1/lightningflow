@@ -1,0 +1,42 @@
+# LightningFlow — docker-compose.yml
+#
+# Modo standalone (sem Umbrel): usa as variáveis do ficheiro .env
+# Modo Umbrel: o Umbrel injeta automaticamente APP_DATA_DIR, APP_SEED,
+#   APP_LIGHTNING_NODE_IP, APP_LIGHTNING_NODE_GRPC_PORT,
+#   APP_LIGHTNING_NODE_DATA_DIR, APP_BITCOIN_NETWORK, APP_PASSWORD
+
+services:
+  web:
+    image: ruipereira1/lightningflow:latest
+    container_name: lightningflow_web_1
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # Base de dados persistente
+      - ${APP_DATA_DIR:-./data}/data:/app/data
+      # LND data — macaroon + TLS cert (read-only, só Umbrel)
+      - ${APP_LIGHTNING_NODE_DATA_DIR:-/dev/null}:/lnd:ro
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/lightningflow.db
+      # Segredo JWT — usa APP_SEED do Umbrel ou SESSION_SECRET do .env
+      - SESSION_SECRET=${APP_SEED:-${SESSION_SECRET:-muda-este-segredo-em-producao}}
+      - RESET_SECRET=${RESET_SECRET:-}
+
+      # --- Umbrel LND auto-setup ---
+      # Quando estas vars estão presentes, o LND é configurado automaticamente
+      - UMBREL_LND_IP=${APP_LIGHTNING_NODE_IP:-}
+      - UMBREL_LND_GRPC_PORT=${APP_LIGHTNING_NODE_GRPC_PORT:-10009}
+      - UMBREL_LND_REST_PORT=${APP_LIGHTNING_NODE_REST_PORT:-8080}
+      - UMBREL_MACAROON_PATH=/lnd/data/chain/bitcoin/${APP_BITCOIN_NETWORK:-mainnet}/admin.macaroon
+      - UMBREL_CERT_PATH=/lnd/tls.cert
+      # Password inicial = password do Umbrel (pode ser alterada depois em Definições)
+      - UMBREL_PASSWORD=${APP_PASSWORD:-}
+      - UMBREL_BITCOIN_NETWORK=${APP_BITCOIN_NETWORK:-mainnet}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3

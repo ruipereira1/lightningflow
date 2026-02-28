@@ -1,0 +1,40 @@
+manifestVersion: 1
+
+id: lightningflow
+category: finance
+name: LightningFlow
+version: "1.0.0"
+tagline: Professional Lightning Network node management
+icon: https://raw.githubusercontent.com/ruipereira1/lightningflow/main/public/icon.png
+
+description: >-
+  LightningFlow is a self-hosted dashboard for managing your Lightning Network node.
+  Connects automatically to your Umbrel LND node — zero configuration needed.
+
+  Features:
+  ⚡ Channel management — open, close, monitor liquidity in real-time
+  💡 Fee Optimizer — automatically adjust fees based on channel liquidity
+  ⚖️ Rebalancing — move liquidity between channels to maximize routing revenue
+  🤖 Automation — schedule auto-fees, auto-rebalance, and auto-peer connect
+  📊 Analytics — ROI per channel, earnings history, dead channel detection
+  🔐 Security — brute force protection, rate limiting, HttpOnly JWT sessions
+
+releaseNotes: >-
+  Initial release. Connects automatically to Umbrel LND node on first launch.
+  Password to access the app is your Umbrel password.
+
+developer: ruipereira1
+website: "https://github.com/ruipereira1/lightningflow"
+repo: "https://github.com/ruipereira1/lightningflow"
+support: "https://github.com/ruipereira1/lightningflow/issues"
+submitter: "ruipereira1"
+submission: ""
+
+dependencies:
+  - lightning
+
+port: 3000
+path: ""
+gallery: []
+defaultUsername: ""
+defaultPassword: ""

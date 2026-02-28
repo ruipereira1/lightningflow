@@ -1,0 +1,130 @@
+// LightningFlow — Schema da base de dados
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Node {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  host      String
+  macaroon  String?
+  cert      String?
+  rune      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channels         Channel[]
+  forwardingEvents ForwardingEvent[]
+  rebalanceJobs    RebalanceJob[]
+  autoRules        AutoRule[]
+  feeHistory       FeeHistory[]
+}
+
+model Channel {
+  id            String   @id
+  nodeId        String
+  node          Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  remotePubkey  String
+  remoteAlias   String?
+  capacity      BigInt
+  localBalance  BigInt
+  remoteBalance BigInt
+  active        Boolean
+  localFeeRate  Int
+  baseFee       Int
+  remoteFeeRate Int?
+  updatedAt     DateTime @updatedAt
+
+  feeHistory FeeHistory[]
+
+  @@index([nodeId])
+  @@index([remotePubkey])
+}
+
+model FeeHistory {
+  id         String   @id @default(cuid())
+  nodeId     String
+  node       Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  channelId  String
+  channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  oldFeeRate Int
+  newFeeRate Int
+  oldBaseFee Int
+  newBaseFee Int
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@index([nodeId])
+  @@index([channelId])
+}
+
+model ForwardingEvent {
+  id        String   @id @default(cuid())
+  nodeId    String
+  node      Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  timestamp DateTime
+  chanIdIn  String
+  chanIdOut String
+  amtIn     BigInt
+  amtOut    BigInt
+  fee       BigInt
+
+  @@index([nodeId])
+  @@index([timestamp])
+  @@index([chanIdIn])
+  @@index([chanIdOut])
+}
+
+model RebalanceJob {
+  id          String    @id @default(cuid())
+  nodeId      String
+  node        Node      @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  fromChannel String
+  toChannel   String
+  amount      BigInt
+  feePaid     BigInt?
+  status      String
+  error       String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([nodeId])
+  @@index([status])
+}
+
+model AutoRule {
+  id           String   @id @default(cuid())
+  nodeId       String
+  node         Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  name         String
+  type         String
+  targetRatio  Float?
+  maxFeePpm    Int?
+  minFeePpm    Int?
+  maxFeePpmSet Int?
+  enabled      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@index([nodeId])
+}
+
+model AppConfig {
+  id                   String    @id @default("singleton")
+  passwordHash         String
+  sessionSecret        String
+  autoFeeEnabled       Boolean   @default(false)
+  autoRebalanceEnabled Boolean   @default(false)
+  autoPeerEnabled      Boolean   @default(false)
+  automationInterval   Int       @default(60)
+  lastAutomationRun    DateTime?
+  lastForwardSync      DateTime?
+  updatedAt            DateTime  @updatedAt
+}
