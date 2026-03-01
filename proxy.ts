@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/setup", "/api/auth/reset", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/setup", "/api/auth/reset", "/api/health", "/api/price"];
 
 // ── Rate Limiter Global ───────────────────────────────────────────────────────
 

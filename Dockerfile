@@ -37,16 +37,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# Copiar Prisma CLI para poder correr migrações em runtime
-COPY --from=deps /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
-COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
-COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+# Instalar Prisma CLI (com scripts de postinstall para baixar os binários nativos)
+RUN npm install --no-save prisma@7.4.1 2>&1 | tail -5
 
-# Criar pasta para a base de dados
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
-
-# Garantir que o executável Prisma tem permissões correctas
-RUN chmod +x ./node_modules/.bin/prisma 2>/dev/null || true
+# Criar pasta para a base de dados e garantir permissões
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data && chown -R nextjs:nodejs /app/node_modules
 
 USER nextjs
 

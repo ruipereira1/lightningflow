@@ -22,6 +22,8 @@ export class LNDAdapter implements LightningAdapter {
   private lnd: unknown; // instância do cliente LND
 
   constructor(config: NodeConfig) {
+    // Node.js 22+ rejeita self-signed certs em gRPC — necessário para LND/Polar
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     // Criar cliente LND a partir das credenciais guardadas
     const { lnd } = lnService.authenticatedLndGrpc({
       cert: config.cert ?? "",      // TLS cert em base64
