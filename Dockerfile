@@ -35,13 +35,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-
-# Instalar Prisma CLI (com scripts de postinstall para baixar os binários nativos)
-RUN npm install --no-save prisma@7.4.1 2>&1 | tail -5
+COPY --from=builder /app/migrate.js ./migrate.js
 
 # Criar pasta para a base de dados e garantir permissões
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data && chown -R nextjs:nodejs /app/node_modules
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 USER nextjs
 
@@ -53,5 +50,5 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD wget -qO- http://localhost:3000/api/health || exit 1
 
-# Executar migrações e iniciar a app
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node server.js"]
+# Executar migrações (script custom, sem Prisma CLI) e iniciar a app
+CMD ["sh", "-c", "node migrate.js && node server.js"]
