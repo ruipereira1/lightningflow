@@ -1,27 +1,49 @@
-manifestVersion: 1
+manifestVersion: 1.1
 
 id: lightningflow
 category: finance
 name: LightningFlow
-version: "1.0.0"
+version: "1.3.0"
 tagline: Professional Lightning Network node management
 icon: https://raw.githubusercontent.com/ruipereira1/lightningflow/main/public/icon.png
 
 description: >-
-  LightningFlow is a self-hosted dashboard for managing your Lightning Network node.
+  LightningFlow is a self-hosted, open-source dashboard for managing your Lightning Network node.
   Connects automatically to your Umbrel LND node — zero configuration needed.
 
-  Features:
-  ⚡ Channel management — open, close, monitor liquidity in real-time
-  💡 Fee Optimizer — automatically adjust fees based on channel liquidity
+
+  FEATURES
+
+  ⚡ Channel Management — open, close, monitor liquidity in real-time with live SSE updates
+
+  💡 Fee Optimizer — automatically adjusts fees based on channel liquidity balance
+
   ⚖️ Rebalancing — move liquidity between channels to maximize routing revenue
-  🤖 Automation — schedule auto-fees, auto-rebalance, and auto-peer connect
-  📊 Analytics — ROI per channel, earnings history, dead channel detection
-  🔐 Security — brute force protection, rate limiting, HttpOnly JWT sessions
+
+  🤖 Automation — schedule auto-fees, auto-rebalance, and auto-peer connect on a timer
+
+  📊 Analytics — ROI per channel, earnings history, fee evolution chart, dead channel detection
+
+  💬 Invoices & Payments — create BOLT11 invoices with QR code, pay invoices, full history
+
+  🤖 AI Assistant (optional) — connect your own Gemini or Groq API key for intelligent fee suggestions and automation recommendations, applied with one click. Your key is stored locally only.
+
+  🔐 Security — brute force protection, rate limiting, HttpOnly JWT sessions, prompt injection protection
+
+
+  PRIVACY & SECURITY
+
+  All data stays on your device. No telemetry, no cloud sync.
+  The optional AI assistant only sends channel statistics (no keys, no funds) to the AI provider you choose.
+  Your Gemini/Groq API key is stored only in your local database, never in the Docker image.
 
 releaseNotes: >-
-  Initial release. Connects automatically to Umbrel LND node on first launch.
-  Password to access the app is your Umbrel password.
+  v1.3.0: AI assistant with actionable suggestions — AI can now suggest and directly apply
+  fee changes and automation settings with one click. Added security hardening: prompt
+  injection protection, rate limiting, fee bounds validation.
+  v1.2.0: Invoices & Payments — create/receive BOLT11 invoices with QR code, pay invoices.
+  v1.1.0: Fee history chart, BTC price in EUR, dead channel close button, SSE live updates.
+  v1.0.0: Initial release. Auto-connects to Umbrel LND. Password = your Umbrel password.
 
 developer: ruipereira1
 website: "https://github.com/ruipereira1/lightningflow"
