@@ -13,10 +13,12 @@ interface Node {
 const NODE_KEY = "lf_active_node";
 
 export function useActiveNode() {
-  const [nodeId, setNodeId] = useState<string>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(NODE_KEY) ?? "";
-    return "";
-  });
+  const [nodeId, setNodeId] = useState<string>("");
+
+  // Sync with localStorage after mount (avoids SSR hydration mismatch)
+  useEffect(() => {
+    setNodeId(localStorage.getItem(NODE_KEY) ?? "");
+  }, []);
 
   const setActive = (id: string) => {
     localStorage.setItem(NODE_KEY, id);

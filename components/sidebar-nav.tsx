@@ -14,17 +14,21 @@ import {
   Bot,
   Settings,
   History,
+  Send,
+  Sparkles,
 } from "lucide-react";
 
 const navItems = [
   { href: "/",             label: "Dashboard",        Icon: LayoutDashboard, exact: true },
   { href: "/channels",    label: "Canais",            Icon: Zap },
+  { href: "/payments",   label: "Pagamentos",         Icon: Send },
   { href: "/fees",        label: "Fees",              Icon: DollarSign },
   { href: "/fee-history", label: "Histórico Fees",    Icon: History },
   { href: "/rebalance",   label: "Rebalancing",       Icon: ArrowLeftRight },
   { href: "/automation",  label: "Automação",         Icon: Bot },
   { href: "/analytics",   label: "Analytics",         Icon: BarChart3 },
   { href: "/peers",       label: "Peers",             Icon: Users },
+  { href: "/ai",          label: "Assistente IA",     Icon: Sparkles },
   { href: "/settings",    label: "Definições",        Icon: Settings },
 ];
 

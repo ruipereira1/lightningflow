@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [tab, setTab] = useState<"nodes" | "security">("nodes");
+  const [tab, setTab] = useState<"nodes" | "security" | "ai">("nodes");
 
   // Node form
   const [name, setName] = useState("");
@@ -28,13 +28,22 @@ export default function SettingsPage() {
   const [rune, setRune] = useState("");
   const [adding, setAdding] = useState(false);
 
+  // AI keys form
+  const [geminiKey, setGeminiKey] = useState("");
+  const [groqKey, setGroqKey] = useState("");
+  const [aiHints, setAiHints] = useState<{ geminiKeyHint: string | null; groqKeyHint: string | null } | null>(null);
+  const [savingAi, setSavingAi] = useState(false);
+
   // Password form
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [changingPw, setChangingPw] = useState(false);
 
-  useEffect(() => { loadNodes(); }, []);
+  useEffect(() => {
+    loadNodes();
+    fetch("/api/config/ai").then(r => r.json()).then(d => setAiHints(d)).catch(() => {});
+  }, []);
 
   const loadNodes = async () => {
     setLoading(true);
@@ -90,6 +99,41 @@ export default function SettingsPage() {
     } catch (e) { console.error(e); }
   };
 
+  const saveAiKeys = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingAi(true); setMsg(null);
+    const body: Record<string, string> = {};
+    if (geminiKey !== undefined) body.geminiApiKey = geminiKey;
+    if (groqKey !== undefined) body.groqApiKey = groqKey;
+    try {
+      const res = await fetch("/api/config/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMsg({ type: "success", text: "Chaves IA guardadas" });
+      setGeminiKey(""); setGroqKey("");
+      const hints = await fetch("/api/config/ai").then(r => r.json());
+      setAiHints(hints);
+    } catch (err) {
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao guardar chaves" });
+    } finally { setSavingAi(false); }
+  };
+
+  const removeAiKey = async (provider: "gemini" | "groq") => {
+    setSavingAi(true); setMsg(null);
+    try {
+      const body = provider === "gemini" ? { geminiApiKey: "" } : { groqApiKey: "" };
+      await fetch("/api/config/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      setMsg({ type: "success", text: `Chave ${provider === "gemini" ? "Gemini" : "Groq"} removida` });
+      const hints = await fetch("/api/config/ai").then(r => r.json());
+      setAiHints(hints);
+    } catch { setMsg({ type: "error", text: "Erro ao remover chave" }); }
+    finally { setSavingAi(false); }
+  };
+
   const changePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPw !== confirmPw) { setMsg({ type: "error", text: "As senhas não coincidem" }); return; }
@@ -132,11 +176,11 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 rounded-lg" style={{ background: "rgba(255,255,255,0.05)" }}>
-        {(["nodes", "security"] as const).map((t) => (
+        {(["nodes", "security", "ai"] as const).map((t) => (
           <button key={t} onClick={() => { setTab(t); setMsg(null); }}
             className="flex-1 py-2 text-sm rounded-md transition-all font-medium"
             style={{ background: tab === t ? "#8b5cf6" : "transparent", color: tab === t ? "#fff" : "#71717a" }}>
-            {t === "nodes" ? "Nós Lightning" : "Segurança"}
+            {t === "nodes" ? "Nós Lightning" : t === "security" ? "Segurança" : "Assistente IA"}
           </button>
         ))}
       </div>
@@ -288,6 +332,69 @@ export default function SettingsPage() {
                   style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}>Ativo</span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB: Assistente IA */}
+      {tab === "ai" && (
+        <div className="space-y-4">
+          <div className="glass-card p-5 space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold text-white">Chaves de API — Assistente IA</h2>
+              <p className="text-xs text-zinc-500 mt-1">Gemini e Groq são gratuitos. O Gemini tem prioridade; o Groq é usado como fallback.</p>
+            </div>
+
+            {/* Current status */}
+            <div className="space-y-2">
+              {[
+                { name: "Gemini", hint: aiHints?.geminiKeyHint, provider: "gemini" as const, color: "#4ade80", url: "aistudio.google.com" },
+                { name: "Groq", hint: aiHints?.groqKeyHint, provider: "groq" as const, color: "#fb923c", url: "console.groq.com" },
+              ].map(({ name, hint, provider, color, url }) => (
+                <div key={name} className="flex items-center justify-between p-3 rounded-lg"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{ background: hint ? `rgba(74,222,128,0.1)` : "rgba(255,255,255,0.06)", color: hint ? color : "#71717a" }}>
+                      {hint ? "✓ Configurado" : "Não configurado"}
+                    </span>
+                    <div>
+                      <div className="text-sm text-white">{name}</div>
+                      <div className="text-xs text-zinc-600">{hint ? `Chave: ${hint}` : url}</div>
+                    </div>
+                  </div>
+                  {hint && (
+                    <button onClick={() => removeAiKey(provider)} disabled={savingAi}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+                      style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+                      Remover
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Add keys form */}
+            <form onSubmit={saveAiKeys} className="space-y-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-xs text-zinc-500">Adicionar / substituir chaves (deixa vazio para não alterar)</p>
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400">Chave Gemini</label>
+                <input value={geminiKey} onChange={e => setGeminiKey(e.target.value)}
+                  placeholder="AIza…" className={`${inp} font-mono text-xs`} style={inpStyle} />
+                <p className="text-xs text-zinc-600">Grátis em aistudio.google.com — 1.5M tokens/mês</p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400">Chave Groq</label>
+                <input value={groqKey} onChange={e => setGroqKey(e.target.value)}
+                  placeholder="gsk_…" className={`${inp} font-mono text-xs`} style={inpStyle} />
+                <p className="text-xs text-zinc-600">Grátis em console.groq.com — 14k req/dia (Llama 3.3 70B)</p>
+              </div>
+              <button type="submit" disabled={savingAi || (!geminiKey && !groqKey)}
+                className="w-full py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40"
+                style={{ background: "#8b5cf6" }}>
+                {savingAi ? "A guardar…" : "Guardar Chaves"}
+              </button>
+            </form>
           </div>
         </div>
       )}

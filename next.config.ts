@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // ln-service usa __dirname para encontrar os proto files gRPC.
   // Se for bundled pelo Next.js, o __dirname fica errado (C:\ROOT).
   // Marcar como externo força o require() nativo em runtime.
-  serverExternalPackages: ["ln-service", "lightning", "@grpc/grpc-js", "@grpc/proto-loader"],
+  serverExternalPackages: ["ln-service", "lightning", "@grpc/grpc-js", "@grpc/proto-loader", "groq-sdk", "@google/generative-ai"],
 
   // Headers de segurança HTTP adicionados a todas as respostas
   // (complementam os headers do middleware proxy.ts)

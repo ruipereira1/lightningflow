@@ -38,6 +38,13 @@ export async function POST(request: NextRequest) {
   try { body = await request.json(); } catch { return NextResponse.json({ error: "JSON inválido" }, { status: 400 }); }
   const { autoFeeEnabled, autoRebalanceEnabled, autoPeerEnabled, automationInterval } = body;
 
+  if (automationInterval !== undefined) {
+    const interval = Number(automationInterval);
+    if (!Number.isInteger(interval) || interval < 1 || interval > 1440) {
+      return NextResponse.json({ error: "automationInterval deve estar entre 1 e 1440 minutos" }, { status: 400 });
+    }
+  }
+
   const config = await prisma.appConfig.update({
     where: { id: "singleton" },
     data: {

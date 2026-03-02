@@ -42,6 +42,15 @@ export async function PUT(
     return NextResponse.json({ error: "feeRate e baseFee obrigatórios" }, { status: 400 });
   }
 
+  // Bounds: previne fees absurdas (ex: sugestão IA maliciosa ou erro de input)
+  // feeRate: 0–50000 ppm (0%–5%); baseFee: 0–10000000 msat (10 sat)
+  if (!Number.isInteger(feeRate) || feeRate < 0 || feeRate > 50_000) {
+    return NextResponse.json({ error: "feeRate inválido: deve estar entre 0 e 50000 ppm" }, { status: 400 });
+  }
+  if (!Number.isInteger(baseFee) || baseFee < 0 || baseFee > 10_000_000) {
+    return NextResponse.json({ error: "baseFee inválido: deve estar entre 0 e 10000000 msat" }, { status: 400 });
+  }
+
   const node = await prisma.node.findUnique({ where: { id: nodeId } });
   if (!node) return NextResponse.json({ error: "Nó não encontrado" }, { status: 404 });
 
