@@ -73,15 +73,15 @@ async function buildNodeContext(nodeId: string): Promise<string> {
     }).join("\n");
 
     const autoLine = automationCfg
-      ? `\n- Automação: autoFees=${automationCfg.autoFeeEnabled} autoRebalance=${automationCfg.autoRebalanceEnabled} intervalo=${automationCfg.automationInterval}min`
+      ? `\n- Automation: autoFees=${automationCfg.autoFeeEnabled} autoRebalance=${automationCfg.autoRebalanceEnabled} interval=${automationCfg.automationInterval}min`
       : "";
 
     const safeName = sanitizeForPrompt(node.name, 50);
-    return `\nContexto do nó "${safeName}" (${node.type.toUpperCase()}):
-- Canais: ${channels.filter(c => c.active).length} ativos / ${channels.length} total
-- Liquidez local: ${(totalLocal / 1e8).toFixed(4)} BTC | remota: ${(totalRemote / 1e8).toFixed(4)} BTC
-- Forwarding 7 dias: ${recentForwards.length} eventos, ${(totalFees / 1000).toFixed(0)} sats em fees${autoLine}
-- Canais (usa estes IDs exatos nas ações):
+    return `\nNode context "${safeName}" (${node.type.toUpperCase()}):
+- Channels: ${channels.filter(c => c.active).length} active / ${channels.length} total
+- Local liquidity: ${(totalLocal / 1e8).toFixed(4)} BTC | remote: ${(totalRemote / 1e8).toFixed(4)} BTC
+- Forwarding 7 days: ${recentForwards.length} events, ${(totalFees / 1000).toFixed(0)} sats in fees${autoLine}
+- Channels (use these exact IDs in actions):
 ${channelLines}`;
   } catch {
     return "";
@@ -111,7 +111,7 @@ async function callGroq(apiKey: string, system: string, history: ChatMessage[], 
       { role: "user", content: message },
     ],
   });
-  return completion.choices[0]?.message?.content ?? "Sem resposta";
+  return completion.choices[0]?.message?.content ?? "No response";
 }
 
 export async function POST(request: NextRequest) {
@@ -121,33 +121,33 @@ export async function POST(request: NextRequest) {
     ?? "local";
   if (!checkRateLimit(ip)) {
     return NextResponse.json(
-      { error: "Demasiadas mensagens. Aguarda 5 minutos antes de continuar." },
+      { error: "Too many requests. Please wait 5 minutes before trying again." },
       { status: 429 }
     );
   }
 
   let body: { nodeId?: string; message?: string; history?: ChatMessage[] } = {};
   try { body = await request.json(); } catch {
-    return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const { nodeId, message, history = [] } = body;
-  if (!message?.trim()) return NextResponse.json({ error: "Mensagem obrigatória" }, { status: 400 });
+  if (!message?.trim()) return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
   // Limites de tamanho: impede esgotamento de tokens da API
   if (message.length > 2000) {
-    return NextResponse.json({ error: "Mensagem demasiado longa (máx. 2000 caracteres)" }, { status: 400 });
+    return NextResponse.json({ error: "Message too long (max. 2000 characters)" }, { status: 400 });
   }
   if (!Array.isArray(history) || history.length > 50) {
-    return NextResponse.json({ error: "Histórico inválido ou demasiado longo" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid or too long history" }, { status: 400 });
   }
   // Validar estrutura do histórico (previne manipulação de roles)
   for (const msg of history) {
     if (msg.role !== "user" && msg.role !== "model") {
-      return NextResponse.json({ error: "Role inválido no histórico" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid role in history" }, { status: 400 });
     }
     if (typeof msg.content !== "string" || msg.content.length > 4000) {
-      return NextResponse.json({ error: "Conteúdo inválido no histórico" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid content in history" }, { status: 400 });
     }
   }
 
@@ -158,25 +158,25 @@ export async function POST(request: NextRequest) {
 
   if (!config?.geminiApiKey && !config?.groqApiKey) {
     return NextResponse.json(
-      { error: "Nenhuma chave de IA configurada. Vai a Definições → Assistente IA." },
+      { error: "No AI key configured. Go to Settings → AI Assistant." },
       { status: 400 }
     );
   }
 
   const nodeContext = nodeId ? await buildNodeContext(nodeId) : "";
-  const system = `És um assistente especializado em gestão de nós Lightning Network integrado na app LightningFlow.
-Ajudas operadores a gerir canais, otimizar fees, melhorar liquidez e interpretar métricas.
-Responde sempre em português de Portugal. Sê conciso, prático e técnico quando necessário.
-Quando sugeres ações, explica o motivo brevemente.
+  const system = `You are a specialized assistant for Lightning Network node management integrated into the LightningFlow app.
+You help operators manage channels, optimize fees, improve liquidity, and interpret metrics.
+Always respond in English. Be concise, practical, and technical when needed.
+When suggesting actions, briefly explain the reason.
 
-AÇÕES APLICÁVEIS: Quando sugeres mudanças concretas de fees ou automação, inclui um bloco de ações NO FIM da resposta (depois do texto explicativo), com este formato exato:
+APPLICABLE ACTIONS: When suggesting concrete fee changes or automation settings, include an action block AT THE END of your response (after the explanatory text), in this exact format:
 %%ACTIONS%%[{"type":"fee","channelId":"ID_EXACTO","feeRate":NUMERO,"baseFee":NUMERO,"label":"Descrição curta da ação"},{"type":"automation","settings":{"autoFeeEnabled":true,"automationInterval":30},"label":"Ativar auto-fees a cada 30min"}]%%END%%
 
-Regras:
-- Usa SEMPRE os IDs reais dos canais do contexto (campo id=... em cada canal)
-- feeRate em ppm (ex: 150), baseFee em msat (ex: 1000)
-- Podes combinar vários tipos num único bloco JSON array
-- Só incluis o bloco quando há ações concretas a aplicar — NUNCA em explicações gerais${nodeContext}`;
+Rules:
+- ALWAYS use the real channel IDs from the context (field id=... in each channel)
+- feeRate in ppm (e.g. 150), baseFee in msat (e.g. 1000)
+- You can combine multiple types in a single JSON array
+- Only include the block when there are concrete actions to apply — NEVER in general explanations${nodeContext}`;
 
   const providers: Array<{ name: string; fn: () => Promise<string> }> = [];
   if (config.geminiApiKey) providers.push({ name: "gemini", fn: () => callGemini(config.geminiApiKey!, system, history, message) });
@@ -191,5 +191,5 @@ Regras:
     }
   }
 
-  return NextResponse.json({ error: "Ambos os providers falharam. Verifica as chaves de API." }, { status: 502 });
+  return NextResponse.json({ error: "Both providers failed. Check your API keys." }, { status: 502 });
 }

@@ -58,7 +58,7 @@ export default function RebalancePage() {
     e.preventDefault();
     if (!fromChannel || !toChannel || !amount) return;
     if (fromChannel === toChannel) {
-      setMsg({ type: "error", text: "Canal origem e destino devem ser diferentes" });
+      setMsg({ type: "error", text: "Source and destination channels must be different" });
       return;
     }
     setSubmitting(true); setMsg(null);
@@ -70,10 +70,10 @@ export default function RebalancePage() {
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
-      setMsg({ type: "success", text: "Rebalance iniciado (ID: " + d.jobId + ")" });
+      setMsg({ type: "success", text: "Rebalance started (ID: " + d.jobId + ")" });
       await loadData();
     } catch (err) {
-      setMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao iniciar rebalance" });
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Error starting rebalance" });
     } finally { setSubmitting(false); }
   };
 
@@ -105,22 +105,22 @@ export default function RebalancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Rebalancing</h1>
-          <p className="text-zinc-400 text-sm mt-1">Move liquidez entre canais para maximizar routing revenue</p>
+          <p className="text-zinc-400 text-sm mt-1">Move liquidity between channels to maximize routing revenue</p>
         </div>
         <button onClick={loadData} disabled={loading}
           className="px-3 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          {loading ? "⟳" : "↻ Atualizar"}
+          {loading ? "⟳" : "↻ Refresh"}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Formulário */}
         <div className="glass-card p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-white">Novo Rebalance</h2>
+          <h2 className="text-sm font-semibold text-white">New Rebalance</h2>
           <form onSubmit={submitRebalance} className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs text-zinc-400">Canal Origem (excesso local)</label>
+              <label className="text-xs text-zinc-400">Source Channel (excess local)</label>
               <select value={fromChannel} onChange={(e) => setFromChannel(e.target.value)}
                 required className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                 style={selectStyle}>
@@ -134,7 +134,7 @@ export default function RebalancePage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-zinc-400">Canal Destino (precisa de local)</label>
+              <label className="text-xs text-zinc-400">Destination Channel (needs local)</label>
               <select value={toChannel} onChange={(e) => setToChannel(e.target.value)}
                 required className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
                 style={selectStyle}>
@@ -149,14 +149,14 @@ export default function RebalancePage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-zinc-400">Montante (sat)</label>
+                <label className="text-xs text-zinc-400">Amount (sat)</label>
                 <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)}
-                  placeholder="ex: 500000" min="10000" required
+                  placeholder="e.g. 500000" min="10000" required
                   className="w-full px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                   style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }} />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-zinc-400">Fee Máxima (ppm)</label>
+                <label className="text-xs text-zinc-400">Max Fee (ppm)</label>
                 <input type="number" value={maxFeePpm} onChange={(e) => setMaxFeePpm(e.target.value)}
                   min="1" max="1000"
                   className="w-full px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -167,7 +167,7 @@ export default function RebalancePage() {
             {amount && maxFeePpm && (
               <div className="p-2 rounded-lg text-xs text-zinc-400"
                 style={{ background: "rgba(255,255,255,0.04)" }}>
-                Fee máxima estimada:{" "}
+                Estimated max fee:{" "}
                 <span className="text-purple-400 font-medium">
                   {((parseInt(amount) * parseInt(maxFeePpm)) / 1_000_000).toFixed(0)} sat
                 </span>
@@ -187,7 +187,7 @@ export default function RebalancePage() {
             <button type="submit" disabled={submitting}
               className="w-full py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40"
               style={{ background: "#8b5cf6" }}>
-              {submitting ? "A iniciar rebalance…" : "⚖️ Iniciar Rebalance"}
+              {submitting ? "Starting rebalance…" : "⚖️ Start Rebalance"}
             </button>
           </form>
         </div>
@@ -195,7 +195,7 @@ export default function RebalancePage() {
         {/* Sugestões rápidas */}
         <div className="space-y-3">
           <div className="glass-card p-4 space-y-2">
-            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Excesso Local → Enviar</h3>
+            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Excess Local → Send</h3>
             {highLocal.slice(0, 5).map((c) => (
               <button key={c.id} onClick={() => setFromChannel(c.id)}
                 className="w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all"
@@ -212,11 +212,11 @@ export default function RebalancePage() {
                 </span>
               </button>
             ))}
-            {highLocal.length === 0 && <p className="text-xs text-zinc-600">Nenhum canal com excesso</p>}
+            {highLocal.length === 0 && <p className="text-xs text-zinc-600">No channels with excess</p>}
           </div>
 
           <div className="glass-card p-4 space-y-2">
-            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Falta Local → Receber</h3>
+            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Lacking Local → Receive</h3>
             {lowLocal.slice(0, 5).map((c) => (
               <button key={c.id} onClick={() => setToChannel(c.id)}
                 className="w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all"
@@ -233,14 +233,14 @@ export default function RebalancePage() {
                 </span>
               </button>
             ))}
-            {lowLocal.length === 0 && <p className="text-xs text-zinc-600">Nenhum canal com falta</p>}
+            {lowLocal.length === 0 && <p className="text-xs text-zinc-600">No channels lacking liquidity</p>}
           </div>
         </div>
       </div>
 
       {/* Histórico */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-white">Histórico de Rebalances</h2>
+        <h2 className="text-sm font-semibold text-white">Rebalance History</h2>
         {jobs.map((job) => (
           <div key={job.id} className="glass-card p-4">
             <div className="flex items-center justify-between gap-4">
@@ -262,7 +262,7 @@ export default function RebalancePage() {
                   {job.status}
                 </span>
                 <span className="text-xs text-zinc-600">
-                  {new Date(job.createdAt).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  {new Date(job.createdAt).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function RebalancePage() {
         ))}
         {jobs.length === 0 && (
           <div className="glass-card p-8 text-center text-zinc-500 text-sm">
-            Nenhum rebalance executado ainda
+            No rebalances executed yet
           </div>
         )}
       </div>

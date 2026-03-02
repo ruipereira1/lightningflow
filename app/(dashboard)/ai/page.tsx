@@ -59,7 +59,7 @@ function ActionButton({ action, nodeId }: { action: Action; nodeId: string }) {
         });
       } else {
         setState("error");
-        setErrMsg("Ação desconhecida");
+        setErrMsg("Unknown action");
         return;
       }
       if (res.ok) {
@@ -98,7 +98,7 @@ function ActionButton({ action, nodeId }: { action: Action; nodeId: string }) {
       disabled={!nodeId || state === "applying"}
       className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
       style={{ background: "rgba(139,92,246,0.18)", color: "#c4b5fd", border: "1px solid rgba(139,92,246,0.35)", cursor: nodeId ? "pointer" : "not-allowed" }}
-      title={!nodeId ? "Seleciona um nó primeiro" : undefined}>
+      title={!nodeId ? "Select a node first" : undefined}>
       {state === "applying"
         ? <><Loader2 size={12} className="animate-spin" /> A aplicar…</>
         : <><Icon size={12} /> {action.label}</>}
@@ -107,12 +107,12 @@ function ActionButton({ action, nodeId }: { action: Action; nodeId: string }) {
 }
 
 const QUICK_PROMPTS = [
-  "Analisa os meus canais e sugere as fees ideais",
-  "Devo ativar automação? Com que configuração?",
-  "Quando devo rebalancear um canal?",
-  "O que é um HTLC e como afeta a minha liquidez?",
-  "Porque é que alguns canais têm pouca atividade de routing?",
-  "Que fee rate devo cobrar nos canais com muita liquidez local?",
+  "Analyze my channels and suggest optimal fees",
+  "Should I enable automation? What settings?",
+  "When should I rebalance a channel?",
+  "What is an HTLC and how does it affect my liquidity?",
+  "Why do some channels have low routing activity?",
+  "What fee rate should I charge on channels with high local liquidity?",
 ];
 
 export default function AIPage() {
@@ -161,7 +161,7 @@ export default function AIPage() {
     } catch (err) {
       setMessages(prev => [...prev, {
         role: "model",
-        content: err instanceof Error ? err.message : "Erro ao contactar IA",
+        content: err instanceof Error ? err.message : "Error contacting AI",
         error: true,
       }]);
     } finally {
@@ -173,14 +173,14 @@ export default function AIPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
         <Bot size={48} style={{ color: "#8b5cf6" }} />
-        <h2 className="text-xl font-bold text-white">Assistente IA não configurado</h2>
+        <h2 className="text-xl font-bold text-white">AI Assistant not configured</h2>
         <p className="text-zinc-400 text-sm max-w-sm">
-          Adiciona uma chave gratuita do Gemini ou Groq em{" "}
-          <strong style={{ color: "#a78bfa" }}>Definições → Assistente IA</strong>.
+          Add a free Gemini or Groq key in{" "}
+          <strong style={{ color: "#a78bfa" }}>Settings → AI Assistant</strong>.
         </p>
         <a href="/settings" className="px-4 py-2 rounded-lg text-sm font-medium text-white"
           style={{ background: "#8b5cf6" }}>
-          Ir para Definições
+          Go to Settings
         </a>
       </div>
     );
@@ -195,14 +195,14 @@ export default function AIPage() {
             <Bot size={20} style={{ color: "#8b5cf6" }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Assistente IA</h1>
-            <p className="text-xs text-zinc-500">Gemini → Groq fallback · pode aplicar ações diretamente</p>
+            <h1 className="text-xl font-bold text-white">AI Assistant</h1>
+            <p className="text-xs text-zinc-500">Gemini → Groq fallback · can apply changes directly</p>
           </div>
         </div>
         {messages.length > 0 && (
           <button onClick={() => setMessages([])}
             className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors">
-            <RotateCcw size={13} /> Nova conversa
+            <RotateCcw size={13} /> New conversation
           </button>
         )}
       </div>
@@ -217,17 +217,17 @@ export default function AIPage() {
               </div>
               <div className="text-sm text-zinc-200 space-y-1">
                 <p>
-                  Olá! Sou o assistente IA do LightningFlow. Posso analisar os teus canais, sugerir fees ideais
-                  e configurações de automação — e <strong style={{ color: "#a78bfa" }}>aplicar as mudanças diretamente</strong> com um clique.
+                  Hi! I'm the LightningFlow AI assistant. I can analyze your channels, suggest optimal fees
+                  and automation settings — and <strong style={{ color: "#a78bfa" }}>apply changes directly</strong> with one click.
                 </p>
                 {activeNodeId
-                  ? <p className="text-xs text-emerald-400/80">✓ Contexto do nó carregado — análise personalizada disponível.</p>
-                  : <p className="text-xs text-zinc-500">Seleciona um nó para análise personalizada e ações.</p>}
+                  ? <p className="text-xs text-emerald-400/80">✓ Node context loaded — personalized analysis available.</p>
+                  : <p className="text-xs text-zinc-500">Select a node for personalized analysis and actions.</p>}
               </div>
             </div>
             <div>
               <p className="text-xs text-zinc-500 mb-2 flex items-center gap-1">
-                <Zap size={12} /> Sugestões rápidas
+                <Zap size={12} /> Quick prompts
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {QUICK_PROMPTS.map(p => (
@@ -247,7 +247,7 @@ export default function AIPage() {
                 style={msg.role === "user"
                   ? { background: "rgba(139,92,246,0.3)", color: "#c4b5fd" }
                   : { background: "rgba(6,182,212,0.2)", color: "#22d3ee" }}>
-                {msg.role === "user" ? "Tu" : <Bot size={14} />}
+                {msg.role === "user" ? "You" : <Bot size={14} />}
               </div>
               <div className="flex flex-col gap-2 max-w-[85%]">
                 <div className="px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap"
@@ -292,7 +292,7 @@ export default function AIPage() {
             </div>
             <div className="px-3 py-2 rounded-xl text-xs"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#71717a" }}>
-              <span className="animate-pulse">A pensar…</span>
+              <span className="animate-pulse">Thinking…</span>
             </div>
           </div>
         )}
@@ -304,7 +304,7 @@ export default function AIPage() {
         className="flex gap-2 flex-shrink-0 pt-2"
         style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
         <input value={input} onChange={e => setInput(e.target.value)}
-          placeholder="Pergunta sobre canais, fees, liquidez…"
+          placeholder="Ask about channels, fees, liquidity…"
           disabled={loading}
           className="flex-1 px-4 py-3 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }} />

@@ -3,7 +3,7 @@ manifestVersion: 1.1
 id: lightningflow
 category: finance
 name: LightningFlow
-version: "1.3.0"
+version: "1.3.1"
 tagline: Professional Lightning Network node management
 icon: https://raw.githubusercontent.com/ruipereira1/lightningflow/main/public/icon.png
 
@@ -38,6 +38,7 @@ description: >-
   Your Gemini/Groq API key is stored only in your local database, never in the Docker image.
 
 releaseNotes: >-
+  v1.3.1: Full English UI — all interface text translated to English for international users.
   v1.3.0: AI assistant with actionable suggestions — AI can now suggest and directly apply
   fee changes and automation settings with one click. Added security hardening: prompt
   injection protection, rate limiting, fee bounds validation.

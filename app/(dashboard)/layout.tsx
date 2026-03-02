@@ -73,7 +73,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Node selector */}
         <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
           <div className="text-xs font-medium mb-2" style={{ color: "#3f3f46", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Nó Activo
+            Active Node
           </div>
           <NodeSelector />
         </div>
@@ -81,10 +81,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Navegação — componente client com active state */}
         <SidebarNav />
 
-        {/* Notificações + Logout */}
+        {/* Notifications + Logout */}
         <div className="px-4 py-4 space-y-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
           <div className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: "#3f3f46" }}>Notificações</span>
+            <span className="text-xs" style={{ color: "#3f3f46" }}>Notifications</span>
             <NotificationBell />
           </div>
           <LogoutButton />

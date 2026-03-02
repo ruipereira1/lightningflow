@@ -29,17 +29,17 @@ export default function LoginPage() {
         body: JSON.stringify({ password }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Erro ao fazer login"); return; }
+      if (!res.ok) { setError(data.error ?? "Login failed"); return; }
       router.push("/");
       router.refresh();
-    } catch { setError("Erro de rede. Verifica a ligação."); }
+    } catch { setError("Network error. Check your connection."); }
     finally { setLoading(false); }
   };
 
   const handleSetup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) { setError("As senhas não coincidem"); return; }
-    if (newPassword.length < 8) { setError("A senha deve ter pelo menos 8 caracteres"); return; }
+    if (newPassword !== confirmPassword) { setError("Passwords do not match"); return; }
+    if (newPassword.length < 8) { setError("Password must be at least 8 characters"); return; }
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/setup", {
@@ -48,9 +48,9 @@ export default function LoginPage() {
         body: JSON.stringify({ password: newPassword }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Erro no setup"); return; }
+      if (!res.ok) { setError(data.error ?? "Setup failed"); return; }
       setIsSetup(false);
-    } catch { setError("Erro de rede."); }
+    } catch { setError("Network error."); }
     finally { setLoading(false); }
   };
 
@@ -94,7 +94,7 @@ export default function LoginPage() {
             LightningFlow
           </h1>
           <p className="text-sm mt-1" style={{ color: "#52525b" }}>
-            {isSetup === null ? "" : isSetup ? "Configura o teu acesso" : "Gestão de canais Lightning"}
+            {isSetup === null ? "" : isSetup ? "Set up your access" : "Lightning channel management"}
           </p>
         </div>
 
@@ -110,12 +110,12 @@ export default function LoginPage() {
         >
           <div>
             <h2 className="text-base font-semibold text-white">
-              {isSetup ? "Configuração Inicial" : "Entrar"}
+              {isSetup ? "Initial Setup" : "Sign In"}
             </h2>
             <p className="text-xs mt-1" style={{ color: "#71717a" }}>
               {isSetup
-                ? "Define a senha de acesso à tua instância"
-                : "Introduz a tua senha de acesso"}
+                ? "Set a password for your instance"
+                : "Enter your access password"}
             </p>
           </div>
 
@@ -125,7 +125,7 @@ export default function LoginPage() {
                 type="password"
                 value={newPassword}
                 onChange={(v) => setNewPassword(v)}
-                placeholder="Nova senha (mín. 8 caracteres)"
+                placeholder="New password (min. 8 chars)"
                 cls={inputCls}
                 style={inputStyle}
                 focusStyle={inputFocusStyle}
@@ -134,7 +134,7 @@ export default function LoginPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(v) => setConfirmPassword(v)}
-                placeholder="Confirmar senha"
+                placeholder="Confirm password"
                 cls={inputCls}
                 style={{
                   ...inputStyle,
@@ -145,10 +145,10 @@ export default function LoginPage() {
                 focusStyle={inputFocusStyle}
               />
               {confirmPassword && confirmPassword !== newPassword && (
-                <p className="text-xs text-red-400 -mt-2">As senhas não coincidem</p>
+                <p className="text-xs text-red-400 -mt-2">Passwords do not match</p>
               )}
               {error && <ErrorBox msg={error} />}
-              <SubmitBtn loading={loading} label="Configurar App" loadingLabel="A configurar..." />
+              <SubmitBtn loading={loading} label="Set Up App" loadingLabel="Setting up..." />
             </form>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
@@ -156,14 +156,14 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(v) => setPassword(v)}
-                placeholder="A tua senha de acesso"
+                placeholder="Your access password"
                 autoFocus
                 cls={inputCls}
                 style={inputStyle}
                 focusStyle={inputFocusStyle}
               />
               {error && <ErrorBox msg={error} />}
-              <SubmitBtn loading={loading} label="Entrar" loadingLabel="A entrar..." />
+              <SubmitBtn loading={loading} label="Sign In" loadingLabel="Signing in..." />
             </form>
           )}
         </div>

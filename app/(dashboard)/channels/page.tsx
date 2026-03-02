@@ -96,15 +96,15 @@ export default function ChannelsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white">Canais</h1>
+          <h1 className="text-2xl font-bold text-white">Channels</h1>
           <p className="text-zinc-400 text-sm mt-1">
-            {activeCount}/{channels.length} ativos · {formatSat(totalCapacity)} capacidade · {formatSat(totalLocal)} local
+            {activeCount}/{channels.length} active · {formatSat(totalCapacity)} capacity · {formatSat(totalLocal)} local
           </p>
         </div>
         <div className="flex items-center gap-4">
           {walletConfirmed !== null && (
             <div className="text-right">
-              <div className="text-xs text-zinc-500">Wallet on-chain</div>
+              <div className="text-xs text-zinc-500">On-chain Wallet</div>
               <div className={`text-sm font-semibold ${walletConfirmed > 0 ? "text-amber-400" : "text-zinc-500"}`}>
                 {formatSat(walletConfirmed)}
               </div>
@@ -112,7 +112,7 @@ export default function ChannelsPage() {
                 <div className="text-xs text-zinc-500">{satsToEur(walletConfirmed, btcPrice)}</div>
               )}
               {wallet && Number(wallet.unconfirmedSat) > 0 && (
-                <div className="text-xs text-zinc-600">+{formatSat(Number(wallet.unconfirmedSat))} pendente</div>
+                <div className="text-xs text-zinc-600">+{formatSat(Number(wallet.unconfirmedSat))} pending</div>
               )}
             </div>
           )}
@@ -123,9 +123,9 @@ export default function ChannelsPage() {
               className="text-xs rounded-lg px-3 py-2 text-zinc-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
             >
-              <option value="capacity">Capacidade</option>
-              <option value="localRatio">Liquidez Local</option>
-              <option value="active">Estado</option>
+              <option value="capacity">Capacity</option>
+              <option value="localRatio">Local Liquidity</option>
+              <option value="active">Status</option>
             </select>
             <button
               onClick={loadAll}
@@ -133,14 +133,14 @@ export default function ChannelsPage() {
               className="px-3 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-40"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
             >
-              {loading ? "⟳" : "↻ Atualizar"}
+              {loading ? "⟳" : "↻ Refresh"}
             </button>
             <button
               onClick={() => setShowModal(true)}
               disabled={!nodeId}
               className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors disabled:opacity-40"
             >
-              + Abrir Canal
+              + Open Channel
             </button>
           </div>
         </div>
@@ -149,15 +149,15 @@ export default function ChannelsPage() {
       {/* Summary cards */}
       {channels.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          <SummaryCard label="Canais Ativos" value={`${activeCount}/${channels.length}`} color="purple" />
-          <SummaryCard label="Capacidade Total" value={formatSat(totalCapacity)} color="cyan" />
-          <SummaryCard label="Liquidez Local" value={`${Math.round((totalLocal / totalCapacity) * 100)}%`} color={totalLocal / totalCapacity > 0.7 || totalLocal / totalCapacity < 0.3 ? "orange" : "green"} />
+          <SummaryCard label="Active Channels" value={`${activeCount}/${channels.length}`} color="purple" />
+          <SummaryCard label="Total Capacity" value={formatSat(totalCapacity)} color="cyan" />
+          <SummaryCard label="Local Liquidity" value={`${Math.round((totalLocal / totalCapacity) * 100)}%`} color={totalLocal / totalCapacity > 0.7 || totalLocal / totalCapacity < 0.3 ? "orange" : "green"} />
         </div>
       )}
 
       {!nodeId && (
         <div className="glass-card p-12 text-center text-zinc-500">
-          Seleciona um nó no menu lateral para ver os canais
+          Select a node in the sidebar to view channels
         </div>
       )}
 
@@ -175,12 +175,12 @@ export default function ChannelsPage() {
 
       {nodeId && channels.length === 0 && !loading && (
         <div className="glass-card p-12 text-center">
-          <p className="text-zinc-500 text-sm mb-4">Nenhum canal encontrado neste nó</p>
+          <p className="text-zinc-500 text-sm mb-4">No channels found on this node</p>
           <button
             onClick={() => setShowModal(true)}
             className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors"
           >
-            + Abrir Primeiro Canal
+            + Open First Channel
           </button>
         </div>
       )}
@@ -260,11 +260,11 @@ function ChannelCard({
                 color: channel.active ? "#4ade80" : "#71717a",
               }}
             >
-              {channel.active ? "Ativo" : "Inativo"}
+              {channel.active ? "Active" : "Inactive"}
             </span>
             {debalanced && (
               <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(251,146,60,0.15)", color: "#fb923c" }}>
-                Desequilibrado
+                Unbalanced
               </span>
             )}
             <a
@@ -301,14 +301,14 @@ function ChannelCard({
                 disabled={closing}
                 className="text-xs px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-40"
               >
-                {closing ? "…" : "Cooperativo"}
+                {closing ? "…" : "Cooperative"}
               </button>
               <button
                 onClick={() => { onClose(true); setConfirmClose(false); }}
                 disabled={closing}
                 className="text-xs px-3 py-1.5 rounded-lg bg-red-500/40 text-red-300 hover:bg-red-500/50 transition-colors disabled:opacity-40"
               >
-                Forçar
+                Force
               </button>
               <button
                 onClick={() => setConfirmClose(false)}
@@ -328,7 +328,7 @@ function ChannelCard({
           <span className={debalanced ? "text-orange-400 font-medium" : "text-zinc-400"}>
             {localPct}% local
           </span>
-          <span>Remoto: <span className="text-zinc-300">{formatSat(remoteSat)}</span></span>
+          <span>Remote: <span className="text-zinc-300">{formatSat(remoteSat)}</span></span>
         </div>
         <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
           <div
@@ -342,7 +342,7 @@ function ChannelCard({
           />
           <div className="absolute left-1/2 top-0 h-full w-px" style={{ background: "rgba(255,255,255,0.2)" }} />
         </div>
-        <div className="text-xs text-zinc-600 text-right">Capacidade: {formatSat(capacitySat)}</div>
+        <div className="text-xs text-zinc-600 text-right">Capacity: {formatSat(capacitySat)}</div>
       </div>
     </div>
   );
@@ -388,10 +388,10 @@ function OpenChannelModal({
       });
       const data = await res.json();
       if (res.ok) {
-        setResult({ ok: true, message: data.message ?? "Canal aberto com sucesso!" });
+        setResult({ ok: true, message: data.message ?? "Channel opened successfully!" });
         setTimeout(onSuccess, 2000);
       } else {
-        setResult({ ok: false, message: data.error ?? "Erro desconhecido" });
+        setResult({ ok: false, message: data.error ?? "Unknown error" });
       }
     } catch (err) {
       setResult({ ok: false, message: String(err) });
@@ -409,13 +409,13 @@ function OpenChannelModal({
       <div className="glass-card w-full max-w-lg p-6 space-y-5" style={{ borderColor: "rgba(139,92,246,0.3)" }}>
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Abrir Canal Lightning</h2>
+          <h2 className="text-lg font-semibold text-white">Open Lightning Channel</h2>
           <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 transition-colors text-xl">✕</button>
         </div>
 
         {walletSat > 0 && (
           <div className="text-xs text-zinc-500">
-            Disponível on-chain: <span className="text-amber-400 font-medium">{formatSat(walletSat)}</span>
+            Available on-chain: <span className="text-amber-400 font-medium">{formatSat(walletSat)}</span>
           </div>
         )}
 
@@ -469,7 +469,7 @@ function OpenChannelModal({
         {/* Tab: Manual */}
         {tab === "manual" && (
           <div className="space-y-2">
-            <label className="text-xs text-zinc-400">Endereço do peer (pubkey@host:port)</label>
+            <label className="text-xs text-zinc-400">Peer address (pubkey@host:port)</label>
             <input
               type="text"
               value={manualAddr}
@@ -479,7 +479,7 @@ function OpenChannelModal({
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
             />
             {manualAddr && !parsedManual && (
-              <p className="text-xs text-red-400">Formato inválido. Use: pubkey@host:port</p>
+              <p className="text-xs text-red-400">Invalid format. Use: pubkey@host:port</p>
             )}
           </div>
         )}
@@ -487,7 +487,7 @@ function OpenChannelModal({
         {/* Amount + Fee Rate */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs text-zinc-400">Valor (sat)</label>
+            <label className="text-xs text-zinc-400">Amount (sat)</label>
             <input
               type="number"
               value={amountSat}
@@ -497,10 +497,10 @@ function OpenChannelModal({
               className="w-full px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
             />
-            <p className="text-xs text-zinc-600">Mín. 20.000 sat</p>
+            <p className="text-xs text-zinc-600">Min. 20,000 sat</p>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-zinc-400">Fee on-chain (sat/vbyte)</label>
+            <label className="text-xs text-zinc-400">On-chain fee (sat/vbyte)</label>
             <input
               type="number"
               value={feeRate}
@@ -535,7 +535,7 @@ function OpenChannelModal({
             className="flex-1 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
-            Cancelar
+            Cancel
           </button>
           <button
             onClick={openChannel}
@@ -543,7 +543,7 @@ function OpenChannelModal({
             className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-40"
             style={{ background: canOpen && !loading ? "#8b5cf6" : "#52526e" }}
           >
-            {loading ? "A abrir…" : "⚡ Abrir Canal"}
+            {loading ? "Opening…" : "⚡ Open Channel"}
           </button>
         </div>
       </div>

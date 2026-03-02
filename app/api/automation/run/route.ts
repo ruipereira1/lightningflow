@@ -11,6 +11,11 @@ export async function GET() {
 }
 
 export async function POST() {
-  const result = await scheduler.runNow();
-  return NextResponse.json({ success: true, result });
+  try {
+    const result = await scheduler.runNow();
+    return NextResponse.json({ success: true, result });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Erro ao executar automação";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }

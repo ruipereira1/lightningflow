@@ -144,6 +144,15 @@ export class CLNAdapter implements LightningAdapter {
     };
   }
 
+  async lookupInvoice(rHash: string): Promise<{ status: "pending" | "settled" | "expired"; settledAt: Date | null }> {
+    const result = await this.call<{ invoices: Record<string, unknown>[] }>("listinvoices", { payment_hash: rHash });
+    const inv = result.invoices?.[0];
+    if (!inv) return { status: "expired", settledAt: null };
+    const status = inv.status === "paid" ? "settled" : inv.status === "expired" ? "expired" : "pending";
+    const settledAt = inv.paid_at ? new Date(Number(inv.paid_at) * 1000) : null;
+    return { status, settledAt };
+  }
+
   async estimateRoute(_destPubkey: string, _amountSat: number): Promise<RouteEstimate | null> {
     // CLN não tem um endpoint simples de estimativa de rota
     return null;

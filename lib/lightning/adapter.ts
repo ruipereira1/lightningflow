@@ -28,6 +28,7 @@ export interface LightningAdapter {
   // Pagamentos (usado para rebalancing)
   sendPayment(invoice: string, maxFeeMsat: number): Promise<PaymentResult>;
   createInvoice(amountSat: number, memo?: string): Promise<{ paymentRequest: string; rHash: string }>;
+  lookupInvoice(rHash: string): Promise<{ status: "pending" | "settled" | "expired"; settledAt: Date | null }>;
   estimateRoute(destPubkey: string, amountSat: number): Promise<RouteEstimate | null>;
 
   // Histórico

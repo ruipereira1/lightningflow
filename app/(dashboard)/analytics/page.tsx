@@ -21,9 +21,9 @@ interface Analytics {
 }
 
 const DAYS_OPTIONS = [
-  { value: 7, label: "7 dias" },
-  { value: 30, label: "30 dias" },
-  { value: 90, label: "90 dias" },
+  { value: 7, label: "7 days" },
+  { value: 30, label: "30 days" },
+  { value: 90, label: "90 days" },
 ];
 
 export default function AnalyticsPage() {
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
       setConfirmingChanId(null);
       await load();
     } catch {
-      setCloseError("Erro de rede");
+      setCloseError("Network error");
     } finally {
       setClosingChanId(null);
     }
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="text-zinc-400 text-sm mt-1">Rentabilidade e ROI do teu nó</p>
+          <p className="text-zinc-400 text-sm mt-1">Profitability and ROI of your node</p>
         </div>
         <div className="flex gap-2">
           <div className="flex gap-1 p-1 rounded-lg" style={{ background: "rgba(255,255,255,0.05)" }}>
@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
             className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40"
             style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", color: "#a78bfa" }}
           >
-            {syncing ? "A sincronizar…" : "⟳ Sincronizar"}
+            {syncing ? "Syncing…" : "⟳ Sync"}
           </button>
           {data && data.totalForwards > 0 && (
             <button
@@ -156,21 +156,21 @@ export default function AnalyticsPage() {
       {data && (
         <div className="grid grid-cols-3 gap-4">
           <div className="glass-card p-5" style={{ boxShadow: "0 0 24px rgba(245,158,11,0.1)" }}>
-            <div className="text-xs text-zinc-500 mb-1">Ganhos ({days}d)</div>
+            <div className="text-xs text-zinc-500 mb-1">Earnings ({days}d)</div>
             <div className="text-2xl font-bold text-amber-400">{fmt(data.totalFeesSat)} sat</div>
             <div className="text-xs text-zinc-600 mt-1">
-              {satsToEur(data.totalFeesSat, btcPrice) || "em routing fees"}
+              {satsToEur(data.totalFeesSat, btcPrice) || "in routing fees"}
             </div>
           </div>
           <div className="glass-card p-5" style={{ boxShadow: "0 0 24px rgba(6,182,212,0.1)" }}>
-            <div className="text-xs text-zinc-500 mb-1">Pagamentos Roteados</div>
-            <div className="text-2xl font-bold text-cyan-400">{data.totalForwards.toLocaleString("pt-PT")}</div>
-            <div className="text-xs text-zinc-600 mt-1">forwards processados</div>
+            <div className="text-xs text-zinc-500 mb-1">Routed Payments</div>
+            <div className="text-2xl font-bold text-cyan-400">{data.totalForwards.toLocaleString()}</div>
+            <div className="text-xs text-zinc-600 mt-1">forwards processed</div>
           </div>
           <div className="glass-card p-5" style={{ boxShadow: "0 0 24px rgba(139,92,246,0.1)" }}>
-            <div className="text-xs text-zinc-500 mb-1">Fee Média/Forward</div>
+            <div className="text-xs text-zinc-500 mb-1">Avg Fee/Forward</div>
             <div className="text-2xl font-bold text-purple-400">{data.avgFeePerForward.toFixed(3)} sat</div>
-            <div className="text-xs text-zinc-600 mt-1">por pagamento</div>
+            <div className="text-xs text-zinc-600 mt-1">per payment</div>
           </div>
         </div>
       )}
@@ -178,7 +178,7 @@ export default function AnalyticsPage() {
       {/* Earnings chart */}
       {data && data.dailyEarnings.length > 0 && (
         <div className="glass-card p-6">
-          <h2 className="text-sm font-semibold text-white mb-4">Earnings Diários (sat)</h2>
+          <h2 className="text-sm font-semibold text-white mb-4">Daily Earnings (sat)</h2>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={data.dailyEarnings}>
               <defs>
@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
               <Tooltip
                 contentStyle={{ background: "#1c1c23", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
                 formatter={(v) => [Number(v).toFixed(3) + " sat", "Fees"]}
-                labelFormatter={(l) => "Data: " + l}
+                labelFormatter={(l) => "Date: " + l}
               />
               <Area type="monotone" dataKey="feesSat" stroke="#f59e0b" strokeWidth={2} fill="url(#earnGrad)" />
             </AreaChart>
@@ -205,8 +205,8 @@ export default function AnalyticsPage() {
       {data && data.channelRoi.length > 0 && (
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">ROI por Canal (anualizado)</h2>
-            <span className="text-xs text-zinc-500">% retorno anual sobre capital alocado</span>
+            <h2 className="text-sm font-semibold text-white">ROI per Channel (annualized)</h2>
+            <span className="text-xs text-zinc-500">% annual return on allocated capital</span>
           </div>
           <div className="space-y-2">
             {data.channelRoi.slice(0, 8).map((c, i) => {
@@ -224,7 +224,7 @@ export default function AnalyticsPage() {
                       </a>
                       <div className="flex items-center gap-3 text-xs">
                         <span className="text-zinc-500">{fmtSat(c.earnedSat)}</span>
-                        <span className="font-bold" style={{ color: roiColor }}>{c.roiPercent.toFixed(2)}% /ano</span>
+                        <span className="font-bold" style={{ color: roiColor }}>{c.roiPercent.toFixed(2)}% /yr</span>
                       </div>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
       {/* Top canais por revenue */}
       {data && data.topChannels.length > 0 && (
         <div className="glass-card p-6">
-          <h2 className="text-sm font-semibold text-white mb-4">Top Canais por Revenue</h2>
+          <h2 className="text-sm font-semibold text-white mb-4">Top Channels by Revenue</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={data.topChannels.slice(0, 8)}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
               <Tooltip
                 contentStyle={{ background: "#1c1c23", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
                 formatter={(v) => [Number(v).toFixed(3) + " sat", "Earnings"]}
-                labelFormatter={(l) => "Canal: " + l}
+                labelFormatter={(l) => "Channel: " + l}
               />
               <Bar dataKey="earnedSat" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -272,10 +272,10 @@ export default function AnalyticsPage() {
             <h2 className="text-sm font-semibold text-orange-400">
               {data.deadChannels.length} Canal{data.deadChannels.length !== 1 ? "is" : ""} Morto{data.deadChannels.length !== 1 ? "s" : ""}
             </h2>
-            <span className="text-xs text-zinc-500">— sem atividade nos últimos {days} dias</span>
+            <span className="text-xs text-zinc-500">— no activity in the last {days} days</span>
           </div>
           <p className="text-xs text-zinc-500">
-            Estes canais têm capital alocado mas não geram routing fees. Considera fechar e reabrir com peers mais ativos.
+            These channels have allocated capital but generate no routing fees. Consider closing and reopening with more active peers.
           </p>
           {closeError && (
             <div className="p-3 rounded-lg text-xs text-red-400" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)" }}>
@@ -301,7 +301,7 @@ export default function AnalyticsPage() {
                         disabled={closingChanId === c.chanId}
                         className="px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-40"
                       >
-                        {closingChanId === c.chanId ? "…" : "Confirmar"}
+                        {closingChanId === c.chanId ? "…" : "Confirm"}
                       </button>
                       <button
                         onClick={() => { setConfirmingChanId(null); setCloseError(null); }}
@@ -329,13 +329,13 @@ export default function AnalyticsPage() {
 
       {!nodeId && (
         <div className="glass-card p-12 text-center text-zinc-500">
-          Seleciona um nó no menu lateral para ver analytics
+          Select a node in the sidebar to view analytics
         </div>
       )}
       {nodeId && !loading && data && data.totalForwards === 0 && (
         <div className="glass-card p-12 text-center space-y-2">
-          <p className="text-zinc-400 font-medium">Nenhum forwarding event encontrado</p>
-          <p className="text-sm text-zinc-600">Clica em "Sincronizar" para carregar o histórico do nó</p>
+          <p className="text-zinc-400 font-medium">No forwarding events found</p>
+          <p className="text-sm text-zinc-600">Click "Sync" to load the node's history</p>
         </div>
       )}
     </div>

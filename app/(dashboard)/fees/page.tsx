@@ -31,9 +31,9 @@ interface Suggestion {
 }
 
 const FEE_PRESETS = [
-  { label: "Conservador", ppm: 50, base: 1000, desc: "Canais com pouca atividade — fees baixas para atrair routing", color: "#4ade80" },
-  { label: "Equilibrado", ppm: 200, base: 1000, desc: "Fee padrão para a maioria dos canais Lightning", color: "#f59e0b" },
-  { label: "Agressivo", ppm: 500, base: 1000, desc: "Canais premium com alta liquidez e boa conectividade", color: "#f87171" },
+  { label: "Conservative", ppm: 50, base: 1000, desc: "Low-activity channels — low fees to attract routing", color: "#4ade80" },
+  { label: "Balanced", ppm: 200, base: 1000, desc: "Standard fee for most Lightning channels", color: "#f59e0b" },
+  { label: "Aggressive", ppm: 500, base: 1000, desc: "Premium channels with high liquidity and good connectivity", color: "#f87171" },
 ];
 
 export default function FeesPage() {
@@ -72,9 +72,9 @@ export default function FeesPage() {
         body: JSON.stringify({ nodeId, feeRate, baseFee, reason: "optimizer" }),
       });
       if (!res.ok) throw new Error();
-      setMsg({ type: "success", text: "Fee atualizada" });
+      setMsg({ type: "success", text: "Fee updated" });
       await loadData();
-    } catch { setMsg({ type: "error", text: "Erro ao atualizar fee" }); }
+    } catch { setMsg({ type: "error", text: "Error updating fee" }); }
     finally { setApplying(null); }
   };
 
@@ -87,14 +87,14 @@ export default function FeesPage() {
         body: JSON.stringify({ nodeId }),
       });
       const d = await res.json();
-      setMsg({ type: "success", text: `${d.applied} fees atualizadas` });
+      setMsg({ type: "success", text: `${d.applied} fees updated` });
       await loadData();
-    } catch { setMsg({ type: "error", text: "Erro ao aplicar sugestões" }); }
+    } catch { setMsg({ type: "error", text: "Error applying suggestions" }); }
     finally { setApplyingAll(false); }
   };
 
   const applyPreset = async (ppm: number, base: number, label: string) => {
-    if (!confirm(`Aplicar fee ${label} (${ppm} ppm) a TODOS os ${channels.length} canais?`)) return;
+    if (!confirm(`Apply ${label} fee (${ppm} ppm) to ALL ${channels.length} channels?`)) return;
     setApplyingPreset(label); setMsg(null);
     let applied = 0;
     try {
@@ -106,9 +106,9 @@ export default function FeesPage() {
         });
         applied++;
       }
-      setMsg({ type: "success", text: `Preset ${label} aplicado a ${applied} canais` });
+      setMsg({ type: "success", text: `Preset ${label} applied to ${applied} channels` });
       await loadData();
-    } catch { setMsg({ type: "error", text: "Erro ao aplicar preset" }); }
+    } catch { setMsg({ type: "error", text: "Error applying preset" }); }
     finally { setApplyingPreset(null); }
   };
 
@@ -123,13 +123,13 @@ export default function FeesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Gestão de Fees</h1>
-          <p className="text-zinc-400 text-sm mt-1">Otimiza fees para maximizar routing revenue</p>
+          <h1 className="text-2xl font-bold text-white">Fee Management</h1>
+          <p className="text-zinc-400 text-sm mt-1">Optimize fees to maximize routing revenue</p>
         </div>
         <button onClick={loadData} disabled={loading}
           className="px-3 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-40"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          {loading ? "⟳" : "↻ Atualizar"}
+          {loading ? "⟳" : "↻ Refresh"}
         </button>
       </div>
 
@@ -147,8 +147,8 @@ export default function FeesPage() {
       {/* Presets rápidos */}
       <div className="glass-card p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">Presets Rápidos</h2>
-          <span className="text-xs text-zinc-500">Aplica a todos os canais de uma vez</span>
+          <h2 className="text-sm font-semibold text-white">Quick Presets</h2>
+          <span className="text-xs text-zinc-500">Apply to all channels at once</span>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {FEE_PRESETS.map((p) => (
@@ -178,7 +178,7 @@ export default function FeesPage() {
             style={{ background: tab === t ? "#8b5cf6" : "transparent", color: tab === t ? "#fff" : "#71717a" }}>
             {t === "optimizer"
               ? `Fee Optimizer${suggestions.length > 0 ? ` (${suggestions.length})` : ""}`
-              : "Edição Manual"}
+              : "Manual Editing"}
           </button>
         ))}
       </div>
@@ -192,7 +192,7 @@ export default function FeesPage() {
               <button onClick={applyAll} disabled={applyingAll}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-40 transition-colors"
                 style={{ background: "#8b5cf6" }}>
-                {applyingAll ? "A aplicar…" : `Aplicar Todas (${suggestions.length})`}
+                {applyingAll ? "Applying…" : `Aplicar Todas (${suggestions.length})`}
               </button>
             </div>
           )}
@@ -200,8 +200,8 @@ export default function FeesPage() {
           {suggestions.length === 0 && !loading && (
             <div className="glass-card p-10 text-center space-y-2">
               <div className="text-2xl">✅</div>
-              <p className="text-white font-medium">Todas as fees estão otimizadas!</p>
-              <p className="text-xs text-zinc-500">Os teus canais têm fees adequadas à liquidez atual.</p>
+              <p className="text-white font-medium">All fees are optimized!</p>
+              <p className="text-xs text-zinc-500">Your channels have fees appropriate for the current liquidity.</p>
             </div>
           )}
 
@@ -217,7 +217,7 @@ export default function FeesPage() {
                       {s.remoteAlias || s.remotePubkey.slice(0, 16) + "…"}
                     </a>
                     <span className="text-xs px-2 py-0.5 rounded-full" style={urgencyStyle[s.urgency]}>
-                      {s.urgency === "high" ? "Urgente" : s.urgency === "medium" ? "Recomendado" : "Sugestão"}
+                      {s.urgency === "high" ? "Urgent" : s.urgency === "medium" ? "Recommended" : "Suggestion"}
                     </span>
                   </div>
                   <p className="text-xs text-zinc-500">{s.reason}</p>
@@ -234,7 +234,7 @@ export default function FeesPage() {
                   disabled={applying === s.channelId}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-40 transition-colors flex-shrink-0"
                   style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.5)" }}>
-                  {applying === s.channelId ? "…" : "Aplicar"}
+                  {applying === s.channelId ? "…" : "Apply"}
                 </button>
               </div>
             </div>
@@ -250,7 +250,7 @@ export default function FeesPage() {
           ))}
           {channels.length === 0 && !loading && (
             <div className="glass-card p-8 text-center text-zinc-500 text-sm">
-              Nenhum canal encontrado
+              No channels found
             </div>
           )}
         </div>
@@ -293,7 +293,7 @@ function ManualCard({ channel, nodeId, btcPrice, onUpdate }: { channel: Channel;
           </a>
           <div className="text-xs text-zinc-500 mt-0.5 flex items-center gap-2">
             <span>
-              Liquidez: <span className={localPct < 30 || localPct > 70 ? "text-orange-400" : "text-zinc-400"}>{localPct}%</span>
+              Liquidity: <span className={localPct < 30 || localPct > 70 ? "text-orange-400" : "text-zinc-400"}>{localPct}%</span>
             </span>
             {Number(channel.capacity) > 0 && (
               <span className="text-zinc-700">
@@ -321,7 +321,7 @@ function ManualCard({ channel, nodeId, btcPrice, onUpdate }: { channel: Channel;
           <button onClick={handleSave} disabled={saving}
             className="mt-5 px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-40 transition-colors"
             style={{ background: saved ? "#4ade80" : "#8b5cf6", color: saved ? "#000" : "#fff" }}>
-            {saving ? "…" : saved ? "✓" : "Guardar"}
+            {saving ? "…" : saved ? "✓" : "Save"}
           </button>
         </div>
       </div>

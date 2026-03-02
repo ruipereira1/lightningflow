@@ -26,6 +26,8 @@ model Node {
   rebalanceJobs    RebalanceJob[]
   autoRules        AutoRule[]
   feeHistory       FeeHistory[]
+  invoices         Invoice[]
+  payments         Payment[]
 }
 
 model Channel {
@@ -116,6 +118,37 @@ model AutoRule {
   @@index([nodeId])
 }
 
+model Invoice {
+  id             String    @id @default(cuid())
+  nodeId         String
+  node           Node      @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  rHash          String    @unique
+  paymentRequest String
+  amountSat      BigInt
+  memo           String?
+  status         String    @default("pending")
+  settledAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([nodeId])
+  @@index([status])
+}
+
+model Payment {
+  id             String    @id @default(cuid())
+  nodeId         String
+  node           Node      @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  paymentRequest String
+  amountSat      BigInt
+  feeSat         BigInt    @default(0)
+  preimage       String?
+  status         String
+  error          String?
+  createdAt      DateTime  @default(now())
+
+  @@index([nodeId])
+}
+
 model AppConfig {
   id                   String    @id @default("singleton")
   passwordHash         String
@@ -126,5 +159,7 @@ model AppConfig {
   automationInterval   Int       @default(60)
   lastAutomationRun    DateTime?
   lastForwardSync      DateTime?
+  geminiApiKey         String?
+  groqApiKey           String?
   updatedAt            DateTime  @updatedAt
 }

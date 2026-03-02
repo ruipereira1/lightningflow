@@ -16,6 +16,7 @@ export interface SchedulerResult {
   rebalancesStarted: number;
   peersConnected: number;
   forwardsSynced: number;
+  invoicesSynced: number;
   errors: string[];
   timestamp: Date;
 }
@@ -75,7 +76,7 @@ class Scheduler {
       clearTimeout(this.timer);
       this.scheduleNext();
     }
-    return this.lastResult ?? { feesAdjusted: 0, rebalancesStarted: 0, peersConnected: 0, forwardsSynced: 0, errors: [], timestamp: new Date() };
+    return this.lastResult ?? { feesAdjusted: 0, rebalancesStarted: 0, peersConnected: 0, forwardsSynced: 0, invoicesSynced: 0, errors: [], timestamp: new Date() };
   }
 
   getStatus(): SchedulerStatus {
@@ -96,6 +97,7 @@ class Scheduler {
       rebalancesStarted: 0,
       peersConnected: 0,
       forwardsSynced: 0,
+      invoicesSynced: 0,
       errors: [],
       timestamp: new Date(),
     };
@@ -140,6 +142,30 @@ class Scheduler {
             result.forwardsSynced += fwdEvents.length;
           } catch (err) {
             result.errors.push(`ForwardSync ${node.name}: ${err instanceof Error ? err.message : "Erro"}`);
+          }
+
+          // === INVOICE STATUS SYNC ===
+          // Verifica invoices "pending" e actualiza para "settled"/"expired" se o nó confirmar
+          try {
+            const pendingInvoices = await prisma.invoice.findMany({
+              where: { nodeId: node.id, status: "pending" },
+            });
+            for (const inv of pendingInvoices) {
+              try {
+                const { status, settledAt } = await adapter.lookupInvoice(inv.rHash);
+                if (status !== "pending") {
+                  await prisma.invoice.update({
+                    where: { id: inv.id },
+                    data: { status, settledAt },
+                  });
+                  result.invoicesSynced++;
+                }
+              } catch {
+                // Ignora erros individuais — invoice pode não existir no nó
+              }
+            }
+          } catch (err) {
+            result.errors.push(`InvoiceSync ${node.name}: ${err instanceof Error ? err.message : "Erro"}`);
           }
 
           // === AUTO-FEE OPTIMIZER ===
@@ -283,7 +309,7 @@ class Scheduler {
       this.running = false;
       this.lastRun = new Date();
       this.lastResult = result;
-      console.log(`[Scheduler] Concluído: forwards=${result.forwardsSynced} fees=${result.feesAdjusted} rebalances=${result.rebalancesStarted} peers=${result.peersConnected} erros=${result.errors.length}`);
+      console.log(`[Scheduler] Concluído: forwards=${result.forwardsSynced} invoices=${result.invoicesSynced} fees=${result.feesAdjusted} rebalances=${result.rebalancesStarted} peers=${result.peersConnected} erros=${result.errors.length}`);
     }
   }
 }

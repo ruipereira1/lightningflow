@@ -71,11 +71,11 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMsg({ type: "success", text: "Nó adicionado: " + data.name });
+      setMsg({ type: "success", text: "Node added: " + data.name });
       setName(""); setHost(""); setMacaroon(""); setCert(""); setRune("");
       await loadNodes();
     } catch (err) {
-      setMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao adicionar nó" });
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Error adding node" });
     } finally { setAdding(false); }
   };
 
@@ -85,14 +85,14 @@ export default function SettingsPage() {
       const res = await fetch(`/api/nodes/${nodeId}/test`, { method: "POST" });
       const data = await res.json();
       setMsg(data.success
-        ? { type: "success", text: "Ligação OK — " + (data.info?.alias || nodeId) }
-        : { type: "error", text: "Falha: " + data.error });
-    } catch { setMsg({ type: "error", text: "Erro ao testar" }); }
+        ? { type: "success", text: "Connection OK — " + (data.info?.alias || nodeId) }
+        : { type: "error", text: "Failed: " + data.error });
+    } catch { setMsg({ type: "error", text: "Error testing" }); }
     finally { setTesting(null); }
   };
 
   const deleteNode = async (nodeId: string) => {
-    if (!confirm("Tens a certeza que queres remover este nó?")) return;
+    if (!confirm("Are you sure you want to remove this node?")) return;
     try {
       await fetch(`/api/nodes/${nodeId}`, { method: "DELETE" });
       await loadNodes();
@@ -113,12 +113,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMsg({ type: "success", text: "Chaves IA guardadas" });
+      setMsg({ type: "success", text: "AI keys saved" });
       setGeminiKey(""); setGroqKey("");
       const hints = await fetch("/api/config/ai").then(r => r.json());
       setAiHints(hints);
     } catch (err) {
-      setMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao guardar chaves" });
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Error saving keys" });
     } finally { setSavingAi(false); }
   };
 
@@ -127,17 +127,17 @@ export default function SettingsPage() {
     try {
       const body = provider === "gemini" ? { geminiApiKey: "" } : { groqApiKey: "" };
       await fetch("/api/config/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      setMsg({ type: "success", text: `Chave ${provider === "gemini" ? "Gemini" : "Groq"} removida` });
+      setMsg({ type: "success", text: `${provider === "gemini" ? "Gemini" : "Groq"} key removed` });
       const hints = await fetch("/api/config/ai").then(r => r.json());
       setAiHints(hints);
-    } catch { setMsg({ type: "error", text: "Erro ao remover chave" }); }
+    } catch { setMsg({ type: "error", text: "Error removing key" }); }
     finally { setSavingAi(false); }
   };
 
   const changePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPw !== confirmPw) { setMsg({ type: "error", text: "As senhas não coincidem" }); return; }
-    if (newPw.length < 8) { setMsg({ type: "error", text: "Nova senha deve ter pelo menos 8 caracteres" }); return; }
+    if (newPw !== confirmPw) { setMsg({ type: "error", text: "Passwords do not match" }); return; }
+    if (newPw.length < 8) { setMsg({ type: "error", text: "New password must be at least 8 characters" }); return; }
     setChangingPw(true); setMsg(null);
     try {
       const res = await fetch("/api/auth/change-password", {
@@ -147,10 +147,10 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMsg({ type: "success", text: "Senha alterada com sucesso" });
+      setMsg({ type: "success", text: "Password changed successfully" });
       setCurrentPw(""); setNewPw(""); setConfirmPw("");
     } catch (err) {
-      setMsg({ type: "error", text: err instanceof Error ? err.message : "Erro ao alterar senha" });
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Error changing password" });
     } finally { setChangingPw(false); }
   };
 
@@ -160,8 +160,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-white">Definições</h1>
-        <p className="text-zinc-400 text-sm mt-1">Gerir nós Lightning e segurança da conta</p>
+        <h1 className="text-2xl font-bold text-white">Settings</h1>
+        <p className="text-zinc-400 text-sm mt-1">Manage Lightning nodes and account security</p>
       </div>
 
       {msg && (
@@ -180,7 +180,7 @@ export default function SettingsPage() {
           <button key={t} onClick={() => { setTab(t); setMsg(null); }}
             className="flex-1 py-2 text-sm rounded-md transition-all font-medium"
             style={{ background: tab === t ? "#8b5cf6" : "transparent", color: tab === t ? "#fff" : "#71717a" }}>
-            {t === "nodes" ? "Nós Lightning" : t === "security" ? "Segurança" : "Assistente IA"}
+            {t === "nodes" ? "Lightning Nodes" : t === "security" ? "Security" : "AI Assistant"}
           </button>
         ))}
       </div>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           {nodes.length > 0 && (
             <div className="glass-card p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-white">Nós Configurados</h2>
+              <h2 className="text-sm font-semibold text-white">Configured Nodes</h2>
               {nodes.map((node) => (
                 <div key={node.id} className="flex items-center justify-between p-3 rounded-lg"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -209,7 +209,7 @@ export default function SettingsPage() {
                     <button onClick={() => testNode(node.id)} disabled={testing === node.id}
                       className="text-xs px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
                       style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#a1a1aa" }}>
-                      {testing === node.id ? "A testar…" : "Testar"}
+                      {testing === node.id ? "Testing…" : "Test"}
                     </button>
                     <button onClick={() => deleteNode(node.id)}
                       className="text-xs px-3 py-1.5 rounded-lg transition-colors"
@@ -223,16 +223,16 @@ export default function SettingsPage() {
           )}
 
           <div className="glass-card p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-white">Adicionar Nó Lightning</h2>
+            <h2 className="text-sm font-semibold text-white">Add Lightning Node</h2>
             <form onSubmit={addNode} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-400">Nome</label>
+                  <label className="text-xs text-zinc-400">Name</label>
                   <input value={name} onChange={(e) => setName(e.target.value)}
-                    placeholder="ex: Meu Nó Principal" required className={inp} style={inpStyle} />
+                    placeholder="e.g. My Main Node" required className={inp} style={inpStyle} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-400">Tipo</label>
+                  <label className="text-xs text-zinc-400">Type</label>
                   <select value={type} onChange={(e) => setType(e.target.value as "lnd" | "cln")}
                     className={inp} style={inpStyle}>
                     <option value="lnd">LND</option>
@@ -242,7 +242,7 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-zinc-400">
-                  {type === "lnd" ? "Endereço gRPC (host:10009)" : "Endereço REST (host:3010)"}
+                  {type === "lnd" ? "gRPC address (host:10009)" : "REST address (host:3010)"}
                 </label>
                 <input value={host} onChange={(e) => setHost(e.target.value)}
                   placeholder={type === "lnd" ? "192.168.1.10:10009" : "192.168.1.10:3010"}
@@ -264,7 +264,7 @@ export default function SettingsPage() {
               </>}
               {type === "cln" && (
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-400">Rune (token CLN)</label>
+                  <label className="text-xs text-zinc-400">Rune (CLN token)</label>
                   <input value={rune} onChange={(e) => setRune(e.target.value)}
                     placeholder="S34KFhS…" className={`${inp} font-mono text-xs`} style={inpStyle} />
                   <p className="text-xs text-zinc-600">lightning-cli commando-rune</p>
@@ -273,7 +273,7 @@ export default function SettingsPage() {
               <button type="submit" disabled={adding}
                 className="w-full py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40"
                 style={{ background: "#8b5cf6" }}>
-                {adding ? "A adicionar…" : "Adicionar Nó"}
+                {adding ? "Adding…" : "Add Node"}
               </button>
             </form>
           </div>
@@ -284,17 +284,17 @@ export default function SettingsPage() {
       {tab === "security" && (
         <div className="space-y-4">
           <div className="glass-card p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-white">Alterar Senha</h2>
+            <h2 className="text-sm font-semibold text-white">Change Password</h2>
             <form onSubmit={changePassword} className="space-y-3">
               {[
-                { label: "Senha Atual", val: currentPw, set: setCurrentPw },
-                { label: "Nova Senha", val: newPw, set: setNewPw },
-                { label: "Confirmar Nova Senha", val: confirmPw, set: setConfirmPw },
+                { label: "Current Password", val: currentPw, set: setCurrentPw },
+                { label: "New Password", val: newPw, set: setNewPw },
+                { label: "Confirm New Password", val: confirmPw, set: setConfirmPw },
               ].map(({ label, val, set }) => (
                 <div key={label} className="space-y-1">
                   <label className="text-xs text-zinc-400">{label}</label>
                   <input type="password" value={val} onChange={(e) => set(e.target.value)}
-                    required minLength={label === "Senha Atual" ? undefined : 8}
+                    required minLength={label === "Current Password" ? undefined : 8}
                     className={inp}
                     style={{
                       background: "rgba(255,255,255,0.06)", border: "1px solid",
@@ -302,25 +302,25 @@ export default function SettingsPage() {
                         ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)",
                     }} />
                   {label === "Confirmar Nova Senha" && confirmPw && confirmPw !== newPw && (
-                    <p className="text-xs text-red-400">As senhas não coincidem</p>
+                    <p className="text-xs text-red-400">Passwords do not match</p>
                   )}
                 </div>
               ))}
               <button type="submit" disabled={changingPw || (!!confirmPw && confirmPw !== newPw)}
                 className="w-full py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40"
                 style={{ background: "#8b5cf6" }}>
-                {changingPw ? "A alterar…" : "Alterar Senha"}
+                {changingPw ? "Changing…" : "Change Password"}
               </button>
             </form>
           </div>
 
           <div className="glass-card p-5 space-y-3">
-            <h2 className="text-sm font-semibold text-white">Estado da Segurança</h2>
+            <h2 className="text-sm font-semibold text-white">Security Status</h2>
             {[
-              { label: "Proteção brute force", desc: "5 tentativas / 15 min por IP" },
-              { label: "Rate limiting global", desc: "100 requests / minuto por IP" },
-              { label: "JWT + HttpOnly cookies", desc: "Sessão segura de 7 dias" },
-              { label: "Security headers HTTP", desc: "X-Frame-Options, nosniff, HSTS" },
+              { label: "Brute force protection", desc: "5 attempts / 15 min per IP" },
+              { label: "Global rate limiting", desc: "100 requests / minute per IP" },
+              { label: "JWT + HttpOnly cookies", desc: "Secure 7-day session" },
+              { label: "HTTP security headers", desc: "X-Frame-Options, nosniff, HSTS" },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between p-2.5 rounded-lg"
                 style={{ background: "rgba(255,255,255,0.04)" }}>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
                   <div className="text-xs text-zinc-500">{item.desc}</div>
                 </div>
                 <span className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}>Ativo</span>
+                  style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}>Active</span>
               </div>
             ))}
           </div>
@@ -341,8 +341,8 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="glass-card p-5 space-y-4">
             <div>
-              <h2 className="text-sm font-semibold text-white">Chaves de API — Assistente IA</h2>
-              <p className="text-xs text-zinc-500 mt-1">Gemini e Groq são gratuitos. O Gemini tem prioridade; o Groq é usado como fallback.</p>
+              <h2 className="text-sm font-semibold text-white">API Keys — AI Assistant</h2>
+              <p className="text-xs text-zinc-500 mt-1">Gemini and Groq are free. Gemini has priority; Groq is used as fallback.</p>
             </div>
 
             {/* Current status */}
@@ -356,11 +356,11 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{ background: hint ? `rgba(74,222,128,0.1)` : "rgba(255,255,255,0.06)", color: hint ? color : "#71717a" }}>
-                      {hint ? "✓ Configurado" : "Não configurado"}
+                      {hint ? "✓ Configured" : "Not configured"}
                     </span>
                     <div>
                       <div className="text-sm text-white">{name}</div>
-                      <div className="text-xs text-zinc-600">{hint ? `Chave: ${hint}` : url}</div>
+                      <div className="text-xs text-zinc-600">{hint ? `Key: ${hint}` : url}</div>
                     </div>
                   </div>
                   {hint && (
@@ -376,23 +376,23 @@ export default function SettingsPage() {
 
             {/* Add keys form */}
             <form onSubmit={saveAiKeys} className="space-y-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-xs text-zinc-500">Adicionar / substituir chaves (deixa vazio para não alterar)</p>
+              <p className="text-xs text-zinc-500">Add / replace keys (leave blank to keep unchanged)</p>
               <div className="space-y-1">
-                <label className="text-xs text-zinc-400">Chave Gemini</label>
+                <label className="text-xs text-zinc-400">Gemini Key</label>
                 <input value={geminiKey} onChange={e => setGeminiKey(e.target.value)}
                   placeholder="AIza…" className={`${inp} font-mono text-xs`} style={inpStyle} />
-                <p className="text-xs text-zinc-600">Grátis em aistudio.google.com — 1.5M tokens/mês</p>
+                <p className="text-xs text-zinc-600">Free at aistudio.google.com — 1.5M tokens/month</p>
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-zinc-400">Chave Groq</label>
+                <label className="text-xs text-zinc-400">Groq Key</label>
                 <input value={groqKey} onChange={e => setGroqKey(e.target.value)}
                   placeholder="gsk_…" className={`${inp} font-mono text-xs`} style={inpStyle} />
-                <p className="text-xs text-zinc-600">Grátis em console.groq.com — 14k req/dia (Llama 3.3 70B)</p>
+                <p className="text-xs text-zinc-600">Free at console.groq.com — 14k req/day (Llama 3.3 70B)</p>
               </div>
               <button type="submit" disabled={savingAi || (!geminiKey && !groqKey)}
                 className="w-full py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40"
                 style={{ background: "#8b5cf6" }}>
-                {savingAi ? "A guardar…" : "Guardar Chaves"}
+                {savingAi ? "Saving…" : "Save Keys"}
               </button>
             </form>
           </div>

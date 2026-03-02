@@ -161,6 +161,13 @@ export class LNDAdapter implements LightningAdapter {
     };
   }
 
+  async lookupInvoice(rHash: string): Promise<{ status: "pending" | "settled" | "expired"; settledAt: Date | null }> {
+    const result = await lnService.getInvoice({ lnd: this.lnd, id: rHash });
+    const status = result.is_confirmed ? "settled" : result.is_canceled ? "expired" : "pending";
+    const settledAt = result.confirmed_at ? new Date(result.confirmed_at) : null;
+    return { status, settledAt };
+  }
+
   async estimateRoute(destPubkey: string, amountSat: number): Promise<RouteEstimate | null> {
     try {
       const { routes } = await lnService.getRoutes({

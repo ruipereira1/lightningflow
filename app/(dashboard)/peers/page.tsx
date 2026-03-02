@@ -47,10 +47,10 @@ export default function PeersPage() {
         body: JSON.stringify({ nodeId, pubkey, host }),
       });
       if (!res.ok) throw new Error("Erro ao conectar");
-      setMsg({ type: "success", text: "Peer conectado com sucesso" });
+      setMsg({ type: "success", text: "Peer connected successfully" });
       setPubkey(""); setHost("");
       await loadPeers();
-    } catch { setMsg({ type: "error", text: "Erro ao conectar ao peer" }); }
+    } catch { setMsg({ type: "error", text: "Error connecting to peer" }); }
     finally { setConnecting(false); }
   };
 
@@ -64,12 +64,12 @@ export default function PeersPage() {
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error ?? "Erro ao conectar");
-      setMsg({ type: "success", text: `Conectado a ${p.alias}` });
+      setMsg({ type: "success", text: `Connected to ${p.alias}` });
       await loadPeers();
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : "Erro";
       if (errMsg.toLowerCase().includes("already") || errMsg.toLowerCase().includes("connected")) {
-        setMsg({ type: "success", text: `Já conectado a ${p.alias}` });
+        setMsg({ type: "success", text: `Already connected to ${p.alias}` });
       } else {
         setMsg({ type: "error", text: errMsg });
       }
@@ -96,7 +96,7 @@ export default function PeersPage() {
         <button onClick={loadPeers} disabled={loading}
           className="px-3 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          {loading ? "⟳" : "↻ Atualizar"}
+          {loading ? "⟳" : "↻ Refresh"}
         </button>
       </div>
 
@@ -113,8 +113,8 @@ export default function PeersPage() {
       {/* Top Peers recomendados */}
       <div className="glass-card p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">Top Peers Recomendados</h2>
-          <span className="text-xs text-zinc-500">Nós de alta qualidade da Lightning Network</span>
+          <h2 className="text-sm font-semibold text-white">Recommended Top Peers</h2>
+          <span className="text-xs text-zinc-500">High-quality Lightning Network nodes</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {TOP_LIGHTNING_PEERS.map((p) => {
@@ -129,12 +129,12 @@ export default function PeersPage() {
                 </div>
                 {isConnected ? (
                   <span className="text-xs px-2 py-1 rounded-lg flex-shrink-0 ml-2"
-                    style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}>✓ Ligado</span>
+                    style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}>✓ Connected</span>
                 ) : (
                   <button onClick={() => connectTopPeer(p)} disabled={isConnecting}
                     className="text-xs px-3 py-1.5 rounded-lg flex-shrink-0 ml-2 disabled:opacity-40 transition-colors"
                     style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#a78bfa" }}>
-                    {isConnecting ? "…" : "Ligar"}
+                    {isConnecting ? "…" : "Connect"}
                   </button>
                 )}
               </div>
@@ -145,20 +145,20 @@ export default function PeersPage() {
 
       {/* Conectar manualmente */}
       <div className="glass-card p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-white">Conectar Peer Manual</h2>
+        <h2 className="text-sm font-semibold text-white">Connect Peer Manually</h2>
         <form onSubmit={connectPeer} className="flex gap-2 flex-wrap">
           <input value={pubkey} onChange={(e) => setPubkey(e.target.value)}
-            placeholder="Chave pública (pubkey)" required
+            placeholder="Public key (pubkey)" required
             className="flex-1 min-w-0 px-3 py-2 rounded-lg text-sm text-white font-mono placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }} />
           <input value={host} onChange={(e) => setHost(e.target.value)}
-            placeholder="host:porta" required
+            placeholder="host:port" required
             className="w-48 px-3 py-2 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }} />
           <button type="submit" disabled={connecting}
             className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-40 transition-colors"
             style={{ background: "#8b5cf6" }}>
-            {connecting ? "A conectar…" : "Conectar"}
+            {connecting ? "Connecting…" : "Connect"}
           </button>
         </form>
       </div>
@@ -178,7 +178,7 @@ export default function PeersPage() {
                       ? { background: "rgba(74,222,128,0.15)", color: "#4ade80" }
                       : { background: "rgba(161,161,170,0.15)", color: "#71717a" }
                   }>
-                    {peer.connected ? "Conectado" : "Desconectado"}
+                    {peer.connected ? "Connected" : "Disconnected"}
                   </span>
                   <a
                     href={`https://amboss.space/node/${peer.pubkey}`}
@@ -204,7 +204,7 @@ export default function PeersPage() {
         ))}
         {peers.length === 0 && !loading && (
           <div className="glass-card p-8 text-center text-zinc-500 text-sm">
-            Nenhum peer conectado. Liga-te a um dos Top Peers acima para começar.
+            No peers connected. Connect to one of the Top Peers above to get started.
           </div>
         )}
       </div>

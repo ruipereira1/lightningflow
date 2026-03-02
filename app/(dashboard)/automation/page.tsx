@@ -49,9 +49,9 @@ interface RebalanceJob {
 const INTERVAL_OPTIONS = [
   { value: 15, label: "15 min" },
   { value: 30, label: "30 min" },
-  { value: 60, label: "1 hora" },
-  { value: 240, label: "4 horas" },
-  { value: 1440, label: "24 horas" },
+  { value: 60, label: "1 hour" },
+  { value: 240, label: "4 hours" },
+  { value: 1440, label: "24 hours" },
 ];
 
 export default function AutomationPage() {
@@ -144,13 +144,13 @@ export default function AutomationPage() {
   };
 
   const timeAgo = (dateStr: string | null) => {
-    if (!dateStr) return "Nunca";
+    if (!dateStr) return "Never";
     const diff = Date.now() - new Date(dateStr).getTime();
     const min = Math.floor(diff / 60000);
-    if (min < 1) return "Agora mesmo";
-    if (min < 60) return `há ${min} min`;
+    if (min < 1) return "Just now";
+    if (min < 60) return `${min}m ago`;
     const h = Math.floor(min / 60);
-    return `há ${h}h`;
+    return `${h}h ago`;
   };
 
   const anyActive = config?.autoFeeEnabled || config?.autoRebalanceEnabled || config?.autoPeerEnabled;
@@ -160,9 +160,9 @@ export default function AutomationPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Automação</h1>
+          <h1 className="text-2xl font-bold text-white">Automation</h1>
           <p className="text-zinc-400 text-sm mt-1">
-            O sistema trabalha 24/7 para maximizar a rentabilidade do teu nó
+            The system works 24/7 to maximize your node's profitability
           </p>
         </div>
         <button
@@ -186,12 +186,12 @@ export default function AutomationPage() {
           <div className="flex items-center gap-3">
             <div className={`w-2.5 h-2.5 rounded-full ${status.running ? "bg-yellow-400 animate-pulse" : anyActive ? "bg-green-400" : "bg-zinc-600"}`} />
             <span className="text-sm text-zinc-300">
-              {status.running ? "A correr..." : anyActive ? "Activo" : "Inactivo"}
+              {status.running ? "Running..." : anyActive ? "Active" : "Inactive"}
             </span>
           </div>
           <div className="flex gap-6 text-xs text-zinc-500">
-            <span>Último run: <span className="text-zinc-300">{timeAgo(status.lastRun)}</span></span>
-            <span>Próximo: <span className="text-zinc-300">{timeAgo(status.nextRun) === "Nunca" ? "—" : status.nextRun ? new Date(status.nextRun).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }) : "—"}</span></span>
+            <span>Last run: <span className="text-zinc-300">{timeAgo(status.lastRun)}</span></span>
+            <span>Next: <span className="text-zinc-300">{timeAgo(status.nextRun) === "Never" ? "—" : status.nextRun ? new Date(status.nextRun).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }) : "—"}</span></span>
             {status.lastResult && (
               <>
                 <span>Fees: <span className="text-purple-400">{status.lastResult.feesAdjusted}</span></span>
@@ -204,16 +204,16 @@ export default function AutomationPage() {
       )}
 
       {loading ? (
-        <div className="text-center text-zinc-500 py-8">A carregar...</div>
+        <div className="text-center text-zinc-500 py-8">Loading...</div>
       ) : (
         <>
           {/* Configuração global */}
           <div className="glass-card p-6 space-y-6">
-            <h2 className="text-lg font-semibold text-white">Configuração Global</h2>
+            <h2 className="text-lg font-semibold text-white">Global Configuration</h2>
 
             {/* Intervalo */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Intervalo entre execuções</label>
+              <label className="text-sm font-medium text-zinc-300">Interval between executions</label>
               <div className="flex gap-2 flex-wrap">
                 {INTERVAL_OPTIONS.map((opt) => (
                   <button
@@ -240,7 +240,7 @@ export default function AutomationPage() {
             </div>
 
             {saved && (
-              <div className="text-xs text-green-400">✓ Guardado</div>
+              <div className="text-xs text-green-400">✓ Saved</div>
             )}
           </div>
 
@@ -251,15 +251,15 @@ export default function AutomationPage() {
             <AutomationCard
               icon="💰"
               title="Auto-Fees"
-              description="Ajusta fees automaticamente baseado na liquidez de cada canal. Sobe fees quando tens muita liquidez outbound, baixa quando está escasso."
+              description="Automatically adjusts fees based on each channel's liquidity. Raises fees when you have lots of outbound liquidity, lowers when it's scarce."
               active={config?.autoFeeEnabled ?? false}
               onToggle={() => toggle("autoFeeEnabled")}
-              badge="Sem risco"
+              badge="Risk-free"
               badgeColor="green"
               details={[
-                "Liquidez > 70% local → sobe fee",
-                "Liquidez < 30% local → baixa fee",
-                `Limites: 1–2000 ppm`,
+                "Liquidity > 70% local → raise fee",
+                "Liquidity < 30% local → lower fee",
+                `Limits: 1–2000 ppm`,
               ]}
             />
 
@@ -267,15 +267,15 @@ export default function AutomationPage() {
             <AutomationCard
               icon="⚖️"
               title="Auto-Rebalancing"
-              description="Reequilibra canais automaticamente. APENAS quando o custo é < 5% dos ganhos mensais do canal — sem prejuízo garantido."
+              description="Automatically rebalances channels. ONLY when cost is < 5% of the channel's monthly earnings — guaranteed no loss."
               active={config?.autoRebalanceEnabled ?? false}
               onToggle={() => toggle("autoRebalanceEnabled")}
-              badge="Anti-prejuízo"
+              badge="Anti-loss"
               badgeColor="cyan"
               details={[
-                "Só rebalanceia canais com histórico",
-                "Custo máx: 5% dos ganhos/mês",
-                "Máx 30 ppm por rebalancing",
+                "Only rebalances channels with history",
+                "Max cost: 5% of earnings/month",
+                "Max 30 ppm per rebalancing",
               ]}
             />
 
@@ -283,10 +283,10 @@ export default function AutomationPage() {
             <AutomationCard
               icon="🌐"
               title="Auto-Peers"
-              description={`Liga automaticamente a ${TOP_LIGHTNING_PEERS.length} nós Lightning de alta qualidade (ACINQ, Kraken, Bitfinex...) para melhorar o routing.`}
+              description={`Automatically connects to ${TOP_LIGHTNING_PEERS.length} high-quality Lightning nodes (ACINQ, Kraken, Bitfinex...) to improve routing.`}
               active={config?.autoPeerEnabled ?? false}
               onToggle={() => toggle("autoPeerEnabled")}
-              badge="Seguro"
+              badge="Safe"
               badgeColor="purple"
               details={TOP_LIGHTNING_PEERS.map((p) => p.alias)}
             />
@@ -294,11 +294,11 @@ export default function AutomationPage() {
 
           {/* Log de atividade */}
           <div className="glass-card p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-white">Log de Atividade</h2>
+            <h2 className="text-lg font-semibold text-white">Activity Log</h2>
 
             {status?.lastResult && status.lastResult.errors.length > 0 && (
               <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-xs font-medium text-red-400 mb-1">Erros no último run:</p>
+                <p className="text-xs font-medium text-red-400 mb-1">Errors in last run:</p>
                 {status.lastResult.errors.map((e, i) => (
                   <p key={i} className="text-xs text-red-300">{e}</p>
                 ))}
@@ -329,7 +329,7 @@ export default function AutomationPage() {
               ))}
               {rebalanceJobs.length === 0 && feeHistory.length === 0 && (
                 <p className="text-center text-zinc-500 text-sm py-4">
-                  Nenhuma atividade ainda. Activa a automação e clica em &ldquo;Executar Agora&rdquo;.
+                  No activity yet. Enable automation and click &ldquo;Run Now&rdquo;.
                 </p>
               )}
             </div>
@@ -429,7 +429,7 @@ function ActivityRow({
       <div className="text-right flex-shrink-0">
         <div className={`text-xs font-medium ${statusColor}`}>{status}</div>
         <div className="text-xs text-zinc-600">
-          {new Date(date).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+          {new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
         </div>
       </div>
     </div>

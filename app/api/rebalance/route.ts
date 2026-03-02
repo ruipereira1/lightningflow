@@ -101,11 +101,16 @@ async function executeRebalance(
       data: { status: "success", feePaid, completedAt: new Date() },
     });
   } catch (err) {
+    // ln-service lança arrays [code, message, details], não Error objects
+    let errMsg = "Erro desconhecido";
+    if (err instanceof Error) errMsg = err.message;
+    else if (Array.isArray(err)) errMsg = `[${err[0]}] ${err[1] ?? "sem detalhe"}`;
+    else if (typeof err === "string") errMsg = err;
     await prisma.rebalanceJob.update({
       where: { id: jobId },
       data: {
         status: "failed",
-        error: err instanceof Error ? err.message : "Erro desconhecido",
+        error: errMsg,
         completedAt: new Date(),
       },
     });

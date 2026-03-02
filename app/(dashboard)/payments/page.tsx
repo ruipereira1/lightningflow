@@ -44,7 +44,7 @@ function truncateBolt11(pr: string, chars = 24) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("pt-PT", {
+  return new Date(iso).toLocaleString("en-GB", {
     day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
   });
 }
@@ -104,14 +104,14 @@ export default function PaymentsPage() {
         body: JSON.stringify({ nodeId, amountSat: Number(recvAmount), memo: recvMemo || undefined }),
       });
       const data = await res.json();
-      if (!res.ok) { setRecvError(data.error ?? "Erro ao criar invoice"); return; }
+      if (!res.ok) { setRecvError(data.error ?? "Error creating invoice"); return; }
       setCreatedInvoice({ paymentRequest: data.paymentRequest, amountSat: data.amountSat });
       // Gerar QR code
       const qr = await QRCode.toDataURL(data.paymentRequest.toUpperCase(), { width: 240, margin: 1 });
       setQrDataUrl(qr);
       await loadHistory();
     } catch {
-      setRecvError("Erro de rede");
+      setRecvError("Network error");
     } finally {
       setRecvLoading(false);
     }
@@ -149,12 +149,12 @@ export default function PaymentsPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) { setSendError(data.error ?? "Erro ao pagar invoice"); return; }
+      if (!res.ok) { setSendError(data.error ?? "Error paying invoice"); return; }
       setSendResult({ feeSat: data.feeSat });
       setSendBolt11("");
       await loadHistory();
     } catch {
-      setSendError("Erro de rede");
+      setSendError("Network error");
     } finally {
       setSendLoading(false);
     }
@@ -183,8 +183,8 @@ export default function PaymentsPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f4f4f5", margin: 0 }}>Pagamentos</h1>
-          <p style={{ color: "#71717a", fontSize: 13, margin: "4px 0 0" }}>Criar invoices para receber e pagar invoices Lightning</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f4f4f5", margin: 0 }}>Payments</h1>
+          <p style={{ color: "#71717a", fontSize: 13, margin: "4px 0 0" }}>Create invoices to receive and pay Lightning invoices</p>
         </div>
         <button
           onClick={loadHistory}
@@ -192,13 +192,13 @@ export default function PaymentsPage() {
           style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(39,39,42,0.8)", border: "1px solid rgba(63,63,70,0.6)", borderRadius: 8, color: "#a1a1aa", padding: "7px 14px", fontSize: 13, cursor: "pointer" }}
         >
           <RefreshCw size={14} style={{ animation: histLoading ? "spin 1s linear infinite" : "none" }} />
-          Atualizar
+          Refresh
         </button>
       </div>
 
       {!nodeId && (
         <div style={{ ...cardStyle, textAlign: "center", color: "#71717a", padding: 40 }}>
-          Seleciona um nó no topo da página para gerir pagamentos.
+          Select a node at the top of the page to manage payments.
         </div>
       )}
 
@@ -211,19 +211,19 @@ export default function PaymentsPage() {
             <div style={{ ...cardStyle, borderTop: "2px solid #8b5cf6" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <ArrowDownLeft size={18} style={{ color: "#8b5cf6" }} />
-                <span style={{ fontWeight: 600, color: "#c4b5fd", fontSize: 15 }}>Receber</span>
+                <span style={{ fontWeight: 600, color: "#c4b5fd", fontSize: 15 }}>Receive</span>
               </div>
 
               {!createdInvoice ? (
                 <>
                   <div style={{ marginBottom: 12 }}>
-                    <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Valor (sats)</label>
+                    <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Amount (sats)</label>
                     <input
                       type="number"
                       min={1}
                       value={recvAmount}
                       onChange={(e) => setRecvAmount(e.target.value)}
-                      placeholder="ex: 10000"
+                      placeholder="e.g. 10000"
                       style={inputStyle}
                     />
                     {recvAmount && btcPrice && (
@@ -233,12 +233,12 @@ export default function PaymentsPage() {
                     )}
                   </div>
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Descrição (opcional)</label>
+                    <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Description (optional)</label>
                     <input
                       type="text"
                       value={recvMemo}
                       onChange={(e) => setRecvMemo(e.target.value)}
-                      placeholder="ex: Pagamento de serviço"
+                      placeholder="e.g. Service payment"
                       style={inputStyle}
                     />
                   </div>
@@ -252,7 +252,7 @@ export default function PaymentsPage() {
                       color: "#fff", fontWeight: 600, fontSize: 14,
                     }}
                   >
-                    {recvLoading ? "A criar..." : "Criar Invoice"}
+                    {recvLoading ? "Creating..." : "Create Invoice"}
                   </button>
                 </>
               ) : (
@@ -270,7 +270,7 @@ export default function PaymentsPage() {
                       onClick={handleCopy}
                       style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid rgba(139,92,246,0.5)", background: "rgba(139,92,246,0.1)", color: "#c4b5fd", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                     >
-                      {copied ? <><CheckCheck size={14} /> Copiado!</> : <><Copy size={14} /> Copiar BOLT11</>}
+                      {copied ? <><CheckCheck size={14} /> Copied!</> : <><Copy size={14} /> Copy BOLT11</>}
                     </button>
                     <button
                       onClick={handleResetInvoice}
@@ -280,7 +280,7 @@ export default function PaymentsPage() {
                     </button>
                   </div>
                   <div style={{ marginTop: 10, textAlign: "center", color: "#a1a1aa", fontSize: 12 }}>
-                    <Zap size={12} style={{ display: "inline", color: "#8b5cf6" }} /> {Number(createdInvoice.amountSat).toLocaleString("pt-PT")} sats {btcPrice ? `· ${satsToEur(Number(createdInvoice.amountSat), btcPrice)}` : ""}
+                    <Zap size={12} style={{ display: "inline", color: "#8b5cf6" }} /> {Number(createdInvoice.amountSat).toLocaleString()} sats {btcPrice ? `· ${satsToEur(Number(createdInvoice.amountSat), btcPrice)}` : ""}
                   </div>
                 </>
               )}
@@ -290,11 +290,11 @@ export default function PaymentsPage() {
             <div style={{ ...cardStyle, borderTop: "2px solid #06b6d4" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <ArrowUpRight size={18} style={{ color: "#06b6d4" }} />
-                <span style={{ fontWeight: 600, color: "#67e8f9", fontSize: 15 }}>Enviar</span>
+                <span style={{ fontWeight: 600, color: "#67e8f9", fontSize: 15 }}>Send</span>
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Invoice BOLT11</label>
+                <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>BOLT11 Invoice</label>
                 <textarea
                   value={sendBolt11}
                   onChange={(e) => { setSendBolt11(e.target.value); setSendResult(null); setSendError(null); }}
@@ -304,7 +304,7 @@ export default function PaymentsPage() {
                 />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Fee máxima (ppm)</label>
+                <label style={{ color: "#a1a1aa", fontSize: 12, display: "block", marginBottom: 4 }}>Max fee (ppm)</label>
                 <input
                   type="number"
                   min={1}
@@ -318,7 +318,7 @@ export default function PaymentsPage() {
                 <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
                   <CheckCheck size={16} style={{ color: "#10b981" }} />
                   <span style={{ color: "#6ee7b7", fontSize: 13 }}>
-                    Pago! Fee: {sendResult.feeSat} sats
+                    Paid! Fee: {sendResult.feeSat} sats
                     {btcPrice && Number(sendResult.feeSat) > 0 ? ` · ${satsToEur(Number(sendResult.feeSat), btcPrice)}` : ""}
                   </span>
                 </div>
@@ -340,7 +340,7 @@ export default function PaymentsPage() {
                 }}
               >
                 <Send size={15} />
-                {sendLoading ? "A pagar..." : "Pagar Invoice"}
+                {sendLoading ? "Paying..." : "Pay Invoice"}
               </button>
             </div>
           </div>
@@ -351,17 +351,17 @@ export default function PaymentsPage() {
             {/* Faturas criadas */}
             <div style={cardStyle}>
               <h3 style={{ fontSize: 14, fontWeight: 600, color: "#c4b5fd", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
-                <ArrowDownLeft size={14} /> Faturas criadas ({invoices.length})
+                <ArrowDownLeft size={14} /> Invoices created ({invoices.length})
               </h3>
               {invoices.length === 0 ? (
-                <p style={{ color: "#52525b", fontSize: 13, textAlign: "center", padding: "20px 0" }}>Nenhuma fatura criada ainda</p>
+                <p style={{ color: "#52525b", fontSize: 13, textAlign: "center", padding: "20px 0" }}>No invoices created yet</p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {invoices.map((inv) => (
                     <div key={inv.id} style={{ background: "rgba(39,39,42,0.5)", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div>
                         <div style={{ color: "#d4d4d8", fontSize: 13, fontWeight: 500 }}>
-                          {Number(inv.amountSat).toLocaleString("pt-PT")} sats
+                          {Number(inv.amountSat).toLocaleString()} sats
                           {btcPrice ? <span style={{ color: "#52525b", fontSize: 11 }}> · {satsToEur(Number(inv.amountSat), btcPrice)}</span> : ""}
                         </div>
                         {inv.memo && <div style={{ color: "#71717a", fontSize: 11 }}>{inv.memo}</div>}
@@ -372,7 +372,7 @@ export default function PaymentsPage() {
                         background: inv.status === "settled" ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)",
                         color: inv.status === "settled" ? "#6ee7b7" : "#fcd34d",
                       }}>
-                        {inv.status === "settled" ? "Pago" : "Pendente"}
+                        {inv.status === "settled" ? "Paid" : "Pending"}
                       </span>
                     </div>
                   ))}
@@ -383,17 +383,17 @@ export default function PaymentsPage() {
             {/* Pagamentos enviados */}
             <div style={cardStyle}>
               <h3 style={{ fontSize: 14, fontWeight: 600, color: "#67e8f9", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
-                <ArrowUpRight size={14} /> Pagamentos enviados ({payments.length})
+                <ArrowUpRight size={14} /> Payments sent ({payments.length})
               </h3>
               {payments.length === 0 ? (
-                <p style={{ color: "#52525b", fontSize: 13, textAlign: "center", padding: "20px 0" }}>Nenhum pagamento enviado ainda</p>
+                <p style={{ color: "#52525b", fontSize: 13, textAlign: "center", padding: "20px 0" }}>No payments sent yet</p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {payments.map((pay) => (
                     <div key={pay.id} style={{ background: "rgba(39,39,42,0.5)", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div>
                         <div style={{ color: "#d4d4d8", fontSize: 13, fontWeight: 500 }}>
-                          {Number(pay.amountSat).toLocaleString("pt-PT")} sats
+                          {Number(pay.amountSat).toLocaleString()} sats
                           {btcPrice && Number(pay.amountSat) > 0 ? <span style={{ color: "#52525b", fontSize: 11 }}> · {satsToEur(Number(pay.amountSat), btcPrice)}</span> : ""}
                         </div>
                         {pay.status === "success" && Number(pay.feeSat) > 0 && (
@@ -409,7 +409,7 @@ export default function PaymentsPage() {
                         background: pay.status === "success" ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
                         color: pay.status === "success" ? "#6ee7b7" : "#fca5a5",
                       }}>
-                        {pay.status === "success" ? "Enviado" : "Falhou"}
+                        {pay.status === "success" ? "Sent" : "Failed"}
                       </span>
                     </div>
                   ))}

@@ -10,29 +10,34 @@ export async function GET(request: NextRequest) {
 
   if (!nodeId) return NextResponse.json({ error: "nodeId obrigatório" }, { status: 400 });
 
-  const history = await prisma.feeHistory.findMany({
-    where: { nodeId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    select: {
-      id: true,
-      channelId: true,
-      oldFeeRate: true,
-      newFeeRate: true,
-      oldBaseFee: true,
-      newBaseFee: true,
-      reason: true,
-      createdAt: true,
-      channel: {
-        select: { remoteAlias: true, remotePubkey: true },
+  try {
+    const history = await prisma.feeHistory.findMany({
+      where: { nodeId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        channelId: true,
+        oldFeeRate: true,
+        newFeeRate: true,
+        oldBaseFee: true,
+        newBaseFee: true,
+        reason: true,
+        createdAt: true,
+        channel: {
+          select: { remoteAlias: true, remotePubkey: true },
+        },
       },
-    },
-  });
+    });
 
-  return NextResponse.json(history.map((h) => ({
-    ...h,
-    remoteAlias: h.channel?.remoteAlias ?? null,
-    remotePubkey: h.channel?.remotePubkey ?? null,
-    channel: undefined,
-  })));
+    return NextResponse.json(history.map((h) => ({
+      ...h,
+      remoteAlias: h.channel?.remoteAlias ?? null,
+      remotePubkey: h.channel?.remotePubkey ?? null,
+      channel: undefined,
+    })));
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Erro ao carregar histórico";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }

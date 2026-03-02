@@ -73,9 +73,9 @@ export default function FeeHistoryPage() {
   const chartData = useMemo(() => {
     const src = filterChannel === "all" ? [] : filtered.slice(0, 30).reverse();
     return src.map((r) => ({
-      date: new Date(r.createdAt).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" }),
-      "Fee nova": r.newFeeRate,
-      "Fee antiga": r.oldFeeRate,
+      date: new Date(r.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" }),
+      "New fee": r.newFeeRate,
+      "Old fee": r.oldFeeRate,
     }));
   }, [filtered, filterChannel]);
 
@@ -91,8 +91,8 @@ export default function FeeHistoryPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white">Histórico de Fees</h1>
-          <p className="text-zinc-400 text-sm mt-1">Registo completo de todas as alterações de fees</p>
+          <h1 className="text-2xl font-bold text-white">Fee History</h1>
+          <p className="text-zinc-400 text-sm mt-1">Complete record of all fee changes</p>
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -111,7 +111,7 @@ export default function FeeHistoryPage() {
             className="px-3 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
-            {loading ? "⟳" : "↻ Atualizar"}
+            {loading ? "⟳" : "↻ Refresh"}
           </button>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function FeeHistoryPage() {
       {/* Filtro por canal */}
       {channelOptions.length > 1 && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-zinc-500">Filtrar canal:</span>
+          <span className="text-xs text-zinc-500">Filter channel:</span>
           <button
             onClick={() => setFilterChannel("all")}
             className="text-xs px-3 py-1.5 rounded-full font-medium transition-all"
@@ -154,19 +154,19 @@ export default function FeeHistoryPage() {
       {filtered.length > 0 && (
         <div className="grid grid-cols-4 gap-3">
           <div className="glass-card p-4">
-            <div className="text-xs text-zinc-500 mb-1">Total Alterações</div>
+            <div className="text-xs text-zinc-500 mb-1">Total Changes</div>
             <div className="text-xl font-bold text-white">{filtered.length}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-zinc-500 mb-1">Automáticas</div>
+            <div className="text-xs text-zinc-500 mb-1">Automatic</div>
             <div className="text-xl font-bold text-purple-400">{autoCount}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-zinc-500 mb-1">Manuais</div>
+            <div className="text-xs text-zinc-500 mb-1">Manual</div>
             <div className="text-xl font-bold text-cyan-400">{manualCount}</div>
           </div>
           <div className="glass-card p-4">
-            <div className="text-xs text-zinc-500 mb-1">Delta Médio</div>
+            <div className="text-xs text-zinc-500 mb-1">Average Delta</div>
             <div className={`text-xl font-bold ${avgDelta > 0 ? "text-green-400" : avgDelta < 0 ? "text-red-400" : "text-zinc-400"}`}>
               {avgDelta > 0 ? "+" : ""}{Math.round(avgDelta)} ppm
             </div>
@@ -178,7 +178,7 @@ export default function FeeHistoryPage() {
       {filterChannel !== "all" && chartData.length > 1 && (
         <div className="glass-card p-6">
           <h2 className="text-sm font-semibold text-white mb-4">
-            Evolução de Fee — {channelOptions.find(([id]) => id === filterChannel)?.[1]}
+            Fee Evolution — {channelOptions.find(([id]) => id === filterChannel)?.[1]}
           </h2>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={chartData}>
@@ -190,8 +190,8 @@ export default function FeeHistoryPage() {
                 formatter={(v) => [Number(v) + " ppm", ""]}
               />
               <Legend wrapperStyle={{ fontSize: "11px", color: "#71717a" }} />
-              <Line type="monotone" dataKey="Fee nova" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="Fee antiga" stroke="#71717a" strokeWidth={1} strokeDasharray="4 2" dot={false} />
+              <Line type="monotone" dataKey="New fee" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Old fee" stroke="#71717a" strokeWidth={1} strokeDasharray="4 2" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -260,9 +260,9 @@ export default function FeeHistoryPage() {
 
         {!loading && filtered.length === 0 && (
           <div className="glass-card p-12 text-center space-y-2">
-            <p className="text-zinc-400 font-medium">Nenhuma alteração de fee registada</p>
+            <p className="text-zinc-400 font-medium">No fee changes recorded</p>
             <p className="text-sm text-zinc-600">
-              As fees são registadas quando utilizas o Fee Optimizer ou a Automação
+              Fees are recorded when you use the Fee Optimizer or Automation
             </p>
           </div>
         )}
@@ -270,7 +270,7 @@ export default function FeeHistoryPage() {
 
       {!nodeId && (
         <div className="glass-card p-12 text-center text-zinc-500">
-          Seleciona um nó no menu lateral para ver o histórico
+          Select a node in the sidebar to view history
         </div>
       )}
     </div>

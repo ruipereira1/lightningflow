@@ -71,7 +71,7 @@ export default function DashboardPage() {
       if (Array.isArray(peersRes)) setPeers(peersRes.length);
       setAnalytics(analyticsRes);
     } catch (err) {
-      console.error("Erro ao carregar dashboard:", err);
+      console.error("Error loading dashboard:", err);
     } finally {
       setLoading(false);
     }
@@ -89,10 +89,10 @@ export default function DashboardPage() {
     } else if (event === "channel") {
       const d = data as { type?: string; id?: string };
       if (d.type === "closed") {
-        addNotification("warning", "Canal fechado", `Canal ${d.id ?? ""} foi fechado`);
+        addNotification("warning", "Channel closed", `Channel ${d.id ?? ""} was closed`);
         loadData();
       } else if (d.type === "opened") {
-        addNotification("success", "Canal aberto", `Canal ${d.id ?? ""} está ativo`);
+        addNotification("success", "Channel opened", `Channel ${d.id ?? ""} is active`);
         loadData();
       }
     }
@@ -105,9 +105,9 @@ export default function DashboardPage() {
       <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
         <div className="text-5xl">⚡</div>
         <div>
-          <h2 className="text-xl font-semibold">Bem-vindo ao LightningFlow</h2>
+          <h2 className="text-xl font-semibold">Welcome to LightningFlow</h2>
           <p className="text-muted-foreground mt-2">
-            Vai a <strong>Definições</strong> para adicionar o teu primeiro nó Lightning
+            Go to <strong>Settings</strong> to add your first Lightning node
           </p>
         </div>
       </div>
@@ -160,11 +160,11 @@ export default function DashboardPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
-                Ao vivo
+                Live
               </span>
             )}
           </div>
-          <p className="text-sm mt-1" style={{ color: "#71717a" }}>Visão geral do teu nó Lightning</p>
+          <p className="text-sm mt-1" style={{ color: "#71717a" }}>Overview of your Lightning node</p>
         </div>
         <button
           onClick={loadData}
@@ -172,26 +172,26 @@ export default function DashboardPage() {
           className="text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
           style={{ color: "#71717a" }}
         >
-          {loading ? "⟳ A atualizar..." : "↻ Atualizar"}
+          {loading ? "⟳ Refreshing..." : "↻ Refresh"}
         </button>
       </div>
 
       {/* Cards de métricas — dark premium com glow */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Canais Ativos"
+          title="Active Channels"
           value={channels.active.toString()}
-          subtitle={channels.inactive > 0 ? `${channels.inactive} inativos` : "todos activos"}
+          subtitle={channels.inactive > 0 ? `${channels.inactive} inactive` : "all active"}
           accent="#10b981"
           glow="rgba(16,185,129,0.15)"
           icon="⚡"
         />
         <MetricCard
-          title="Saldo On-chain"
+          title="On-chain Balance"
           value={wallet ? `${Number(wallet.confirmedSat).toLocaleString()} sat` : "—"}
           subtitle={
             wallet && Number(wallet.unconfirmedSat) > 0
-              ? `+ ${Number(wallet.unconfirmedSat).toLocaleString()} pendente`
+              ? `+ ${Number(wallet.unconfirmedSat).toLocaleString()} pending`
               : satsToEur(wallet ? Number(wallet.confirmedSat) : 0, btcPrice) || (info?.alias ?? "nó lightning")
           }
           accent="#f59e0b"
@@ -199,17 +199,17 @@ export default function DashboardPage() {
           icon="💰"
         />
         <MetricCard
-          title="Fees Ganhos (30d)"
+          title="Fees Earned (30d)"
           value={`${(analytics?.totalFeesSat ?? 0).toFixed(2)} sat`}
-          subtitle={`${analytics?.totalForwards ?? 0} roteamentos`}
+          subtitle={`${analytics?.totalForwards ?? 0} forwards`}
           accent="#8b5cf6"
           glow="rgba(139,92,246,0.2)"
           icon="📊"
         />
         <MetricCard
-          title="Pares Ligados"
+          title="Connected Peers"
           value={peers.toString()}
-          subtitle={`${channels.active} canal${channels.active !== 1 ? "is" : ""} activo${channels.active !== 1 ? "s" : ""}`}
+          subtitle={`${channels.active} channel${channels.active !== 1 ? "s" : ""}`}
           accent="#06b6d4"
           glow="rgba(6,182,212,0.15)"
           icon="🌐"
@@ -220,21 +220,21 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <QuickAction
           title="Fee Optimizer"
-          description="Otimiza fees automaticamente baseado na liquidez de cada canal"
+          description="Automatically optimizes fees based on each channel's liquidity"
           href="/fees"
           icon="💡"
           badge="Auto"
         />
         <QuickAction
-          title="Automação"
-          description="Configura regras automáticas de fees, rebalancing e conexão a peers"
+          title="Automation"
+          description="Configure automatic rules for fees, rebalancing, and peer connections"
           href="/automation"
           icon="🤖"
-          badge="Novo"
+          badge="New"
         />
         <QuickAction
-          title="Rebalancear"
-          description="Move liquidez entre canais para maximizar routing revenue"
+          title="Rebalance"
+          description="Move liquidity between channels to maximize routing revenue"
           href="/rebalance"
           icon="⚖️"
         />
